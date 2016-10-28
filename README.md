@@ -39,3 +39,9 @@ python manage.py test # to test if setup working
 psql admin -h localhost -d reddit
 # password admin
 ```
+
+### Running Django
+```
+python manage.py migrate
+python manage.py runserver
+```
