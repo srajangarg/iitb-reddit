@@ -57,3 +57,18 @@ eg.
 ```
 python manage.py sqlmigrate users 0001
 ```
+
+### Messed stuff up?
+```
+python manage.py flush
+# yes, if error occurs, contact Srajan
+find . -type f | grep "migrations" | grep -v "__init__" | xargs rm -rf
+```
+
+### Django admin
+```
+# available on /admin
+# if you can't login with admin:admin (probably after a reset)
+python manage.py createsuperuser
+# admin, admin@admin.com, admin, admin
+```
