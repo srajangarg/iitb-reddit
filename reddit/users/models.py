@@ -18,8 +18,8 @@ class Redditer(models.Model):
 
 class Moderator(models.Model):
 
-    redditer = models.ManyToManyField(Redditer)
-    subreddit = models.ManyToManyField(Subreddit)
+    redditer = models.ForeignKey(Redditer)
+    subreddit = models.ForeignKey(Subreddit)
 
 
 
