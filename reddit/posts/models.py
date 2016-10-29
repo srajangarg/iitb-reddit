@@ -26,3 +26,9 @@ class Comment(Post):
 
     text = models.TextField('text')
     commented_on = models.ForeignKey(Post, related_name='comment_post')
+
+class Vote(models.Model):
+
+    value = models.SmallIntegerField('value')
+    voted_by = models.ForeignKey(Redditer)
+    voted_on = models.ForeignKey(Post)
