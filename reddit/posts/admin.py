@@ -7,7 +7,10 @@ class PostAdmin(admin.ModelAdmin):
 	list_display = ('created_on', 'posted_by', 'title', 'posted_in')
 
 class CommentAdmin(admin.ModelAdmin):
-	list_display = ('created_on', 'commented_on', 'text')
+	list_display = ('created_on', 'commented_on', 'comment')
+
+	def comment(self, obj):
+		return obj.text[:30]
 
 class VoteAdmin(admin.ModelAdmin):
 	list_display = ('voted_by', 'voted_on', 'value')
