@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from django.utils import timezone
+from subreddits.models import Subreddit
 import random
 
 class Redditer(models.Model):
@@ -16,6 +16,10 @@ class Redditer(models.Model):
         hsh = get_hexdigest(algo, salt, raw_password)
         self.password = '%s$%s$%s' % (algo, salt, hsh)
 
+class Moderator(models.Model):
+
+    redditer = models.ManyToManyField(Redditer)
+    subreddit = models.ManyToManyField(Subreddit)
 
 
 
