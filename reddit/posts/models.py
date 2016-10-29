@@ -15,17 +15,28 @@ class Post(models.Model):
 class TextPost(Post):
 
     posted_in = models.ForeignKey(Subreddit)
+    title = models.CharField('title', max_length=200)
     text = models.TextField('text')
+
+    def __unicode__(self):
+        return self.title
 
 class LinkPost(Post):
 
     posted_in = models.ForeignKey(Subreddit)
+    title = models.CharField('title', max_length=200)
     link = models.URLField('link', max_length=200)
+
+    def __unicode__(self):
+        return self.title
 
 class Comment(Post):
 
     text = models.TextField('text')
     commented_on = models.ForeignKey(Post, related_name='comment_post')
+
+    def __unicode__(self):
+        return self.text[:30]
 
 class Vote(models.Model):
 

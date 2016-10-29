@@ -16,6 +16,9 @@ class Redditer(models.Model):
         hsh = get_hexdigest(algo, salt, raw_password)
         self.password = '%s$%s$%s' % (algo, salt, hsh)
 
+    def __unicode__(self):
+        return self.username
+
 class Moderator(models.Model):
 
     redditer = models.ForeignKey(Redditer)

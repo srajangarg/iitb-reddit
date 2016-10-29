@@ -6,3 +6,7 @@ class Subreddit(models.Model):
 
     created_on = models.DateTimeField('created_on', auto_now_add=True)
     title = models.CharField('title', max_length=20)
+    description = models.TextField('description')
+
+    def __unicode__(self):
+        return self.title

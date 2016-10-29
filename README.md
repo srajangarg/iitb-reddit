@@ -2,7 +2,7 @@
 
 ### Python version 2.7
 ```
-sudo apt install python=2.7
+sudo apt install python2.7
 ```
 
 ### Django version 1.9
@@ -13,7 +13,7 @@ sudo pip install django==1.9
 
 ### Postgresql version 9.5
 ```
-sudo apt install postgresql=9.5
+sudo apt install postgresql-9.5
 sudo apt install postgresql-server-dev-9.5
 sudo service postgresql start
 ```
@@ -25,7 +25,7 @@ sudo pip install psycopg2==2.6
 
 ### Setting up Postgres Database
 ```
-sudo su - postgres
+sudo -u postgres -i
 psql
 create user admin with password 'admin';
 create database reddit owner admin;
@@ -69,6 +69,9 @@ eg.
 for F in `echo "\dt" | ./manage.py dbshell | awk -F ' ' '{print $3}' | awk 'NR > 3'`; do echo "drop table $F cascade;" | ./manage.py dbshell; done
 
 find . -type f | grep "migrations" | grep -v "__init__" | xargs rm -rf
+
+./manage.py makemigrations
+./manage.py migrate
 
 echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@admin.com', 'admin')" | python manage.py shell
 ```
