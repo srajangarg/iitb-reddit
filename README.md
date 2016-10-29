@@ -21,6 +21,7 @@ sudo service postgresql start
 ### Other requirements
 ```
 sudo pip install psycopg2==2.6
+sudo pip install django-autofixture
 ```
 
 ### Setting up Postgres Database
