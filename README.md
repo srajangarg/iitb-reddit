@@ -2,7 +2,7 @@
 
 ### Python version 2.7
 ```
-sudo apt install python=2.7
+sudo apt install python2.7
 ```
 
 ### Django version 1.9
@@ -13,7 +13,7 @@ sudo pip install django==1.9
 
 ### Postgresql version 9.5
 ```
-sudo apt install postgresql=9.5
+sudo apt install postgresql-9.5
 sudo apt install postgresql-server-dev-9.5
 sudo service postgresql start
 ```
@@ -21,11 +21,12 @@ sudo service postgresql start
 ### Other requirements
 ```
 sudo pip install psycopg2==2.6
+sudo pip install django-autofixture
 ```
 
 ### Setting up Postgres Database
 ```
-sudo su - postgres
+sudo -u postgres -i
 psql
 create user admin with password 'admin';
 create database reddit owner admin;
@@ -70,5 +71,7 @@ for F in `echo "\dt" | ./manage.py dbshell | awk -F ' ' '{print $3}' | awk 'NR >
 
 find . -type f | grep "migrations" | grep -v "__init__" | xargs rm -rf
 
+./manage.py makemigrations
+./manage.py migrate
 echo "from django.contrib.auth import get_user_model; get_user_model().objects.create_superuser('admin', 'admin')" | python manage.py shell
 ```

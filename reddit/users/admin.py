@@ -17,7 +17,7 @@ class RedditerAdmin(UserAdmin):
         (_('Personal info'), {'fields': ('first_name', 'last_name')}),
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser',
                                        'groups', 'user_permissions')}),
-        (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
+        (_('Important dates'), {'fields': ('last_login', 'joined_on')}),
     )
     add_fieldsets = (
         (None, {
@@ -27,10 +27,12 @@ class RedditerAdmin(UserAdmin):
     )
     form = RedditerChangeForm
     add_form = RedditerCreationForm
-    list_display = ('email', 'first_name', 'last_name', 'is_staff')
+    list_display = ('joined_on', 'email', 'first_name', 'last_name', 'is_staff')
     search_fields = ('email', 'first_name', 'last_name')
     ordering = ('email',)
 
-admin.site.register(Redditer, RedditerAdmin)
+class ModeratorAdmin(admin.ModelAdmin):
+	list_display = ('redditer', 'subreddit')
 
-admin.site.register(Moderator)
+admin.site.register(Redditer, RedditerAdmin)
+admin.site.register(Moderator, ModeratorAdmin)
