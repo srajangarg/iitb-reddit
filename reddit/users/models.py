@@ -25,7 +25,7 @@ class RedditerManager(BaseUserManager):
         user = self.model(email=email,
                           is_staff=is_staff, is_active=True,
                           is_superuser=is_superuser, last_login=now,
-                          date_joined=now, **extra_fields)
+                          joined_on=now, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
@@ -55,7 +55,7 @@ class Redditer(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(_('active'), default=True,
         help_text=_('Designates whether this user should be treated as '
                     'active. Unselect this instead of deleting accounts.'))
-    joined_on = models.DateTimeField(_('date joined'), default=timezone.now)
+    joined_on = models.DateTimeField(_('joined_on'), default=timezone.now)
 
     objects = RedditerManager()
 
