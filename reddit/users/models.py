@@ -11,7 +11,7 @@ from subreddits.models import Subreddit
 import random
 
 
-class RedditUserManager(BaseUserManager):
+class RedditerManager(BaseUserManager):
 
     def _create_user(self, email, password,
                      is_staff, is_superuser, **extra_fields):
@@ -38,7 +38,7 @@ class RedditUserManager(BaseUserManager):
         return self._create_user(email, password, True, True,
                                  **extra_fields)
 
-class RedditUser(AbstractBaseUser, PermissionsMixin):
+class Redditer(AbstractBaseUser, PermissionsMixin):
     """
     A fully featured User model with admin-compliant permissions that uses
     a full-length email field as the username.
@@ -57,7 +57,7 @@ class RedditUser(AbstractBaseUser, PermissionsMixin):
                     'active. Unselect this instead of deleting accounts.'))
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
 
-    objects = RedditUserManager()
+    objects = RedditerManager()
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []

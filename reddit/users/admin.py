@@ -3,10 +3,10 @@ from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import ugettext_lazy as _
 
 # Register your models here.
-from .models import RedditUser, Moderator
-from .forms import RedditUserChangeForm, RedditUserCreationForm
+from .models import Redditer, Moderator
+from .forms import RedditerChangeForm, RedditerCreationForm
 
-class RedditUserAdmin(UserAdmin):
+class RedditerAdmin(UserAdmin):
     # The forms to add and change user instances
 
     # The fields to be used in displaying the User model.
@@ -25,12 +25,12 @@ class RedditUserAdmin(UserAdmin):
             'fields': ('email', 'password1', 'password2')}
         ),
     )
-    form = RedditUserChangeForm
-    add_form = RedditUserCreationForm
+    form = RedditerChangeForm
+    add_form = RedditerCreationForm
     list_display = ('email', 'first_name', 'last_name', 'is_staff')
     search_fields = ('email', 'first_name', 'last_name')
     ordering = ('email',)
 
-admin.site.register(RedditUser, RedditUserAdmin)
+admin.site.register(Redditer, RedditerAdmin)
 
 admin.site.register(Moderator)
