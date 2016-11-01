@@ -73,6 +73,5 @@ find . -type f | grep "migrations" | grep -v "__init__" | xargs rm -rf
 
 ./manage.py makemigrations
 ./manage.py migrate
-
-echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@admin.com', 'admin')" | python manage.py shell
+echo "from django.contrib.auth import get_user_model; get_user_model().objects.create_superuser('admin', 'admin')" | python manage.py shell
 ```
