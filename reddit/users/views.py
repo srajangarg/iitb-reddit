@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from django.contrib.auth import get_user_model, authenticate, login as auth_login
+from django.contrib.auth import get_user_model, authenticate, login as auth_login, logout as auth_logout
 from django.shortcuts import render, redirect
 
 def index(request):
@@ -29,9 +29,12 @@ def signup(request):
     else:
         return HttpResponse("Can't sign Up!")
 
-    
+def logout(request):
+    auth_logout(request)
+    return redirect('index')
+
 def user(request, username):
-    return HttpResponse("You are viewing %s's profile" % username)
+    return render(request, "user.html")
 
 def myaccount(request):
     if request.user.is_authenticated():

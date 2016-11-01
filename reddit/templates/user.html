@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+{% load staticfiles %}
 <head>
-	<link rel="stylesheet" href="css/bootstrap.css">
+	<link rel="stylesheet" href={% static "css/bootstrap.css" %}>
 </head>
 
 <body>
@@ -9,7 +10,7 @@
 	<div class="navbar navbar-inverse" >
 		<div class="container" style="margin-left:0px;margin-right:0px;width:98%">
 			<div class="navbar-header pull-left">
-				<a class="navbar-brand" href="index.php"><img src="images/a.png" style="height:45px;width:70px"></a>
+				<a class="navbar-brand" href={% url 'index' %}><img src={% static "images/a.png" %} style="height:45px;width:70px"></a>
 			</div>
 			<div class="navbar-collapse collapse">
 				<ul class="nav navbar-nav">
@@ -21,7 +22,7 @@
 				</ul>
 				<ul class="nav navbar-nav pull-right">
 					<li><a href="">{{ username }}</a></li>
-					<li><a href="index.html">Logout</a></li>
+					<li><a href={% url 'logout' %}>Logout</a></li>
 				</ul>
 			</div>
 		</div>
@@ -43,7 +44,7 @@
 			<span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span>
 		</div>
 		<div class="col-md-2">
-			<img src="images/a.png" style="width:60px;height:60px;">
+			<img src={% static "images/a.png" %} style="width:60px;height:60px;">
 		</div>
 		<div class="col-md-9">
 			<a href="#">sdfghjkldfghjkldfghnjkdxfgbh</a> 
@@ -60,7 +61,7 @@
 			<span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span>
 		</div>
 		<div class="col-md-2">
-			<img src="images/a.png" style="width:60px;height:60px;">
+			<img src={% static "images/a.png" %} style="width:60px;height:60px;">
 		</div>
 		<div class="col-md-9">
 			<a href="#">sdfghjkldfghjkldfghnjkdxfgbh</a> 
