@@ -55,13 +55,13 @@ def user(request, username):
 
 def feed():
     posts = []
-    for p in LinkPost.objects.extra(select={'num_votes' : 0, 'num_comments' : 0}):
+    for p in LinkPost.objects.extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : 'link'}):
         p.num_votes = Vote.objects.filter(voted_on = p).aggregate(votes = Sum('value')).get('votes')
         p.num_comments = Comment.objects.filter(commented_on = p).count()
         if p.num_votes == None:
             p.num_votes = 0
         posts.append(p)
-    for p in TextPost.objects.extra(select={'num_votes' : 0, 'num_comments' : 0}):
+    for p in TextPost.objects.extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : 'text'}):
         p.num_votes = Vote.objects.filter(voted_on = p).aggregate(votes=Sum('value')).get('votes')
         p.num_comments = Comment.objects.filter(commented_on = p).count()
         if p.num_votes == None:

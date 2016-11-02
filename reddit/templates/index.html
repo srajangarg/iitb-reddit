@@ -187,7 +187,11 @@
 				<img src={% static "images/a.png" %} style="width:60px;height:60px;">
 			</div>
 			<div class="col-md-9">
+				{% if p.type == 'text' %}
 				<a href={% url 'post' p.id %}>{{p.title}}</a> 
+				{% else %}
+				<a href={{p.link}}>{{p.title}}</a>
+				{% endif %}
 				<p class="comments">Posted By: <a href={% url 'user' p.posted_by %} class="comments">{{ p.posted_by }}</a></p>
 				<p class="comments" id="time">{{p.created_on}}</p>
 				<p class="comments"><a href={% url 'post' p.id %} class="comments">{{p.num_comments}} 
