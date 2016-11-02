@@ -39,39 +39,32 @@
 	</div>
 
 	<!-- Main Content -->
-	<div class="col-md-8">	
-		<div class="col-md-1">
-			<span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
-			<center>
-				<p class="comments">12</p>
-			</center>
-			<span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span>
-		</div>
-		<div class="col-md-2">
-			<img src={% static "images/a.png" %} style="width:60px;height:60px;">
-		</div>
-		<div class="col-md-9">
-			<a href="#">sdfghjkldfghjkldfghnjkdxfgbh</a> 
-			<br><br><a href="#" class="comments">comments</a> 
-		</div>
-	</div>
+	{% for p in posts %}
+		<div class="col-md-8">	
+			<div class="col-md-1" data-toggle="tooltip" title="Login to Vote">
+				<span class="glyphicon glyphicon-arrow-up disabled" onclick="alert('abcd')" aria-hidden="true"></span>
+				<center>
+					<p class="comments" id="votes">{{p.num_votes}}</p>
+				</center>
+				<span class="glyphicon glyphicon-arrow-down disabled" onclick="alert('abcd')" aria-hidden="true"></span>
+			</div>
+			<div class="col-md-2">
+				<img src={% static "images/a.png" %} style="width:60px;height:60px;">
+			</div>
+			<div class="col-md-9">
+				{% if p.type == 'text' %}
+				<a href={% url 'post' p.id %}>{{p.title}}</a> 
+				{% else %}
+				<a href={{p.link}}>{{p.title}}</a>
+				{% endif %}
+				<p class="comments">Posted By: <a href={% url 'user' p.posted_by %} class="comments">{{ p.posted_by }}</a></p>
+				<p class="comments" id="time">{{p.created_on}}</p>
+				<p class="comments"><a href={% url 'post' p.id %} class="comments">{{p.num_comments}} 
+				{% if p.num_comments < 2 %}comment{%else %}comments{%endif %}</a> points</p> 
 
-	<div class="col-md-8">	
-		<div class="col-md-1">
-			<span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
-			<center>
-				<p class="comments">12</p>
-			</center>
-			<span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span>
+			</div>
 		</div>
-		<div class="col-md-2">
-			<img src={% static "images/a.png" %} style="width:60px;height:60px;">
-		</div>
-		<div class="col-md-9">
-			<a href="#">sdfghjkldfghjkldfghnjkdxfgbh</a> 
-			<br><br><a href="#" class="comments">comments</a> 
-		</div>
-	</div>
+	{% endfor%}
 
 	
 	<script type="text/javascript" src="js/jquery.1.11.1.js"></script>
