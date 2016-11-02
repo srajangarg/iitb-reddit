@@ -7,24 +7,27 @@ import json
 from django.core.serializers.json import DjangoJSONEncoder
 
 def index(request):
+
     posts = feed()
-    if request.user.is_authenticated():
-        user_email = request.user.email
-        return render(request, "index.html", {"username" : user_email, "posts" : posts})
-    else:
-        return render(request, "index.html",{"posts" : posts})
+    return render(request, "index.html", {"username" : request.user, "posts" : posts})
 
 def login(request):
+
+    if request.method == 'GET':
+        return redirect('index')
     email = request.POST.get('username')
     password = request.POST.get('password')
     user = authenticate(email=email, password=password)
     if user is not None:
         auth_login(request, user)
-        return render(request, "index.html",{"username" : email})
+        return render(request, "index.html")
     else:
         return HttpResponse("Invalid credentials")
 
 def signup(request):
+
+    if request.method == 'GET':
+        return redirect('index')
     email = request.POST['email']
     password = request.POST['password']
 
@@ -35,24 +38,39 @@ def signup(request):
         return HttpResponse("Can't sign Up!")
 
 def logout(request):
+
     auth_logout(request)
     return redirect('index')
 
 def user(request, username):
+
     return render(request, "user.html")
 
 # def myaccount(request):
+# 
 #     if request.user.is_authenticated():
 #         user_email = request.user.email
 #         return redirect('user/' + user_email)
 #     else:
 #         return redirect('index')
 
+def post(request, postID):
+
+    return render(request, "post.html")
+
+def newpost(request):
+
+    if request.user.is_authenticated():
+        user_email = request.user.email
+        return render(request, "newpost.html")
+    else:
+        return HttpResponse("Login to post!")
+
 def submitpost(request):
+
     title = request.POST['title']
     subreddit_title = request.POST['subreddit']
     post_type = request.POST['type']
-    user = get_user_model().objects.create_user(email, password)
     if not request.user.is_authenticated():
         return HttpResponse("Login to post!")
 
@@ -60,14 +78,16 @@ def submitpost(request):
     
     if post_type == 'text':
         text = request.POST['text']
-        p = TextPost(posted_by = user, posted_in=subreddit, title=title, text=text)
+        p = TextPost(posted_by = request.user, posted_in=subreddit, title=title, text=text)
         p.save()
     else:
         link = request.POST['link']
-        p = LinkPost(posted_by = user, posted_in=subreddit, title=title, link=link)
+        p = LinkPost(posted_by = request.user, posted_in=subreddit, title=title, link=link)
         p.save()
+    return HttpResponse("Posted")
 
 def feed():
+
     posts = TextPost.objects.all()
     return posts
 
@@ -79,6 +99,3 @@ def feed():
 #     timestamp
 #     num_comments
 #     num_upvotes
-
-def post(request):
-    return render(request, "newpost.html")

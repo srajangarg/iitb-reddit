@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+{% load staticfiles %}
 <head>
-	<link rel="stylesheet" href="css/bootstrap.css">
+	<link rel="stylesheet" href={% static "css/bootstrap.css" %}>
 </head>
 
 <body>
@@ -9,18 +10,19 @@
 	<div class="navbar navbar-inverse" >
 		<div class="container" style="margin-left:0px;margin-right:0px;width:98%">
 			<div class="navbar-header pull-left">
-				<a class="navbar-brand" href="index.php"><img src="images/a.png" style="height:45px;width:70px"></a>
+				<a class="navbar-brand" href={% url 'index' %}><img src={% static "images/a.png" %} style="height:45px;width:70px"></a>
 			</div>
 			<div class="navbar-collapse collapse">
 				<ul class="nav navbar-nav">
 					<li><a href="#">COMMENTS</a></li>
 				</ul>
 				<ul class="nav navbar-nav pull-right">
-					<!-- TODO -->
-					<!-- {% if username == "null" %} -->
-					<li><a href="" data-toggle="modal" data-target="#myModal">Login or SignUp</a></li>
-					<!-- {% else %} -->
-					<li><a href="user.html">{{ username }}</a></li>
+					{% if user %}
+						<li><a href={% url 'user' user %}>{{ user }} </a></li>
+						<li><a href={% url 'logout'%}>Logout</a></li>
+					{% else %}
+						<li><a href="" data-toggle="modal" data-target="#myModal">Login or SignUp</a></li>
+					{% endif %}
 				</ul>
 			</div>
 		</div>
@@ -31,12 +33,12 @@
 		<h5>Related Subreddits</h5>
 	</div>
 
-	<!-- Main Content -->
+	{# <!-- Main Content --> #}
 
-	<!-- POST -->
+	{# <!-- POST --> #}
 	<div class="col-md-8">	
-		<!-- TODO -->
-		<!-- {% if username == "null" %} -->
+		{# <!-- TODO --> #}
+		{# <!-- {% if user == "null" %} --> #}
 		<div class="col-md-1" data-toggle="tooltip" title="Login to Vote">
 			<span class="glyphicon glyphicon-arrow-up disabled" onclick="alert('abcd')" aria-hidden="true"></span>
 			<center>
@@ -45,7 +47,7 @@
 			<span class="glyphicon glyphicon-arrow-down disabled" onclick="alert('abcd')" aria-hidden="true"></span>
 		</div>
 		<div class="col-md-2">
-			<img src="images/a.png" style="width:60px;height:60px;">
+			<img src={% static "images/a.png" %} style="width:60px;height:60px;">
 		</div>
 		<div class="col-md-9">
 			<a href="#">sdfghjkldfghjkldfghnjkdxfgbh</a> 
@@ -61,15 +63,15 @@
 	<div class="col-md-8">
 		<h4>Comments</h4><hr>
 	</div>	
-	<!-- TODO: For loop  -->
-	<!-- https://www.reddit.com/r/django/comments/3ar3ga/what_is_the_best_way_to_do_nested_comments_in/ -->
-<!--
+	{# <!-- TODO: For loop  --> #}
+	{# <!-- https://www.reddit.com/r/django/comments/3ar3ga/what_is_the_best_way_to_do_nested_comments_in/ --> #}
+{# <!--
 	{% for obj in objects %}
 	    <li>{{ obj.name }} - {{ obj.locality }}</li>
-	{% endfor %} -->
+	{% endfor %} -->#}
 	<div class="col-md-8">	
-		<!-- TODO -->
-		<!-- {% if username == "null" %} -->
+		{# <!-- TODO --> #}
+		{# <!-- {% if user == "null" %} --> #}
 		<div class="col-md-1" data-toggle="tooltip" title="Login to Vote">
 			<span class="glyphicon glyphicon-arrow-up disabled" onclick="alert('abcd')" aria-hidden="true"></span>
 			<center>
@@ -84,8 +86,8 @@
 		</div>
 
 		<div class="col-md-11 col-md-offset-1" style="border-left:1px dotted #000">	
-			<!-- TODO -->
-			<!-- {% if username == "null" %} -->
+			{# <!-- TODO --> #}
+			{# <!-- {% if user == "null" %} --> #}
 			<div class="col-md-2" data-toggle="tooltip" title="Login to Vote">
 				<span class="glyphicon glyphicon-arrow-up disabled" onclick="alert('abcd')" aria-hidden="true"></span>
 					<p class="comments">12</p>
@@ -98,8 +100,8 @@
 			</div>
 
 			<div class="col-md-11 col-md-offset-1" style="border-left:1px dotted #000">	
-				<!-- TODO -->
-				<!-- {% if username == "null" %} -->
+				{# <!-- TODO --> #}
+				{# <!-- {% if user == "null" %} --> #}
 				<div class="col-md-2" data-toggle="tooltip" title="Login to Vote">
 					<span class="glyphicon glyphicon-arrow-up disabled" onclick="alert('abcd')" aria-hidden="true"></span>
 						<p class="comments">12</p>
@@ -112,8 +114,8 @@
 				</div>
 
 				<div class="col-md-11 col-md-offset-1" style="border-left:1px dotted #000">	
-					<!-- TODO -->
-					<!-- {% if username == "null" %} -->
+					{# <!-- TODO --> #}
+					{# <!-- {% if user == "null" %} --> #}
 					<div class="col-md-2" data-toggle="tooltip" title="Login to Vote">
 						<span class="glyphicon glyphicon-arrow-up disabled" onclick="alert('abcd')" aria-hidden="true"></span>
 							<p class="comments">12</p>
