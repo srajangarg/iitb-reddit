@@ -99,9 +99,8 @@
 					</li>
 				</ul>
 				<ul class="nav navbar-nav pull-right">
-					<!-- TODO -->
 					{% if username %}
-					<li><a href={% url 'myaccount'%}>{{ username }} </a></li>
+					<li><a href={% url 'user' username %}>{{ username }} </a></li>
 					<li><a href={% url 'logout'%}>Logout</a></li>
 					{% else %}
 					<li><a href="" data-toggle="modal" data-target="#myModal">Login or SignUp</a></li>
@@ -157,9 +156,11 @@
 	<!-- Main Content -->
 <!--
 	TODO: For loop 
+
 	{% for obj in objects %}
 	    <li>{{ obj.name }} - {{ obj.locality }}</li>
 	{% endfor %} -->
+	<!-- http://stackoverflow.com/questions/20298115/parsing-json-in-django-template -->
 	<div id="container">
 		<div class="col-md-8">	
 			<!-- TODO -->

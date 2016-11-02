@@ -36,9 +36,19 @@ def logout(request):
 def user(request, username):
     return render(request, "user.html")
 
-def myaccount(request):
-    if request.user.is_authenticated():
-        user_email = request.user.email
-        return redirect('user/' + user_email)
-    else:
-        return redirect('index')
+# def myaccount(request):
+#     if request.user.is_authenticated():
+#         user_email = request.user.email
+#         return redirect('user/' + user_email)
+#     else:
+#         return redirect('index')
+
+
+# POST
+#     postID
+#     heading
+#     user
+#     subreddit
+#     timestamp
+#     num_comments
+#     num_upvotes
