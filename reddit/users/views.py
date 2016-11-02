@@ -79,3 +79,6 @@ def feed():
 #     timestamp
 #     num_comments
 #     num_upvotes
+
+def post(request):
+    return render(request, "newpost.html")

@@ -73,6 +73,20 @@
 		});
 	});
 	</script>
+	<script type="text/javascript">
+		function link()
+		{
+			alert("asa");
+			document.getElementById('text').style.display = 'none';
+			document.getElementById('link').style.display = 'block';
+		}
+
+		function text()
+		{
+			document.getElementById('text').style.display = 'block';
+			document.getElementById('link').style.display = 'none';
+		}
+	</script>
 </head>
 
 <body>
@@ -150,7 +164,12 @@
 
 	<!-- Sidebar -->
 	<div class="col-md-4 pull-right">
-		<h5>Related Subreddits</h5>
+		<h4>Related Subreddits</h4>
+		{% if username %}
+		<h5><a href={% url 'post' %}>Submit a new post</a></h5>
+		{% else %}
+		<h5>Sign-in to post</h5>
+		{% endif %}
 	</div>
 
 	<!-- Main Content -->
