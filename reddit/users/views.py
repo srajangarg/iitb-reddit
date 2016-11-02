@@ -1,8 +1,9 @@
 from django.http import HttpResponse
 from django.contrib.auth import get_user_model, authenticate, login as auth_login, logout as auth_logout
 from django.shortcuts import render, redirect
+from django.db.models import Sum
 from subreddits.models import Subreddit
-from posts.models import TextPost, LinkPost
+from posts.models import TextPost, LinkPost, Comment, Vote
 
 def index(request):
 
@@ -52,48 +53,18 @@ def user(request, username):
 #     else:
 #         return redirect('index')
 
-# def post(request, postID):
-
-#     return render(request, "post.html")
-
-# def newpost(request):
-
-#     if request.user.is_authenticated():
-#         user_email = request.user.email
-#         return render(request, "newpost.html")
-#     else:
-#         return HttpResponse("Login to post!")
-
-# def submitpost(request):
-
-#     title = request.POST['title']
-#     subreddit_title = request.POST['subreddit']
-#     post_type = request.POST['type']
-#     if not request.user.is_authenticated():
-#         return HttpResponse("Login to post!")
-
-#     subreddit = Subreddit.objects.get(title=subreddit_title)
-    
-#     if post_type == 'text':
-#         text = request.POST['text']
-#         p = TextPost(posted_by = request.user, posted_in=subreddit, title=title, text=text)
-#         p.save()
-#     else:
-#         link = request.POST['link']
-#         p = LinkPost(posted_by = request.user, posted_in=subreddit, title=title, link=link)
-#         p.save()
-#     return HttpResponse("Posted")
-
 def feed():
-
-    posts = TextPost.objects.all()
+    posts = []
+    for p in LinkPost.objects.extra(select={'num_votes' : 0, 'num_comments' : 0}):
+        p.num_votes = Vote.objects.filter(voted_on = p).aggregate(votes = Sum('value')).get('votes')
+        p.num_comments = Comment.objects.filter(commented_on = p).count()
+        if p.num_votes == None:
+            p.num_votes = 0
+        posts.append(p)
+    for p in TextPost.objects.extra(select={'num_votes' : 0, 'num_comments' : 0}):
+        p.num_votes = Vote.objects.filter(voted_on = p).aggregate(votes=Sum('value')).get('votes')
+        p.num_comments = Comment.objects.filter(commented_on = p).count()
+        if p.num_votes == None:
+            p.num_votes = 0
+        posts.append(p)
     return posts
-
-# POST
-#     postID
-#     heading
-#     user
-#     subreddit
-#     timestamp
-#     num_comments
-#     num_upvotes

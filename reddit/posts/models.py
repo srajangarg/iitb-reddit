@@ -48,7 +48,10 @@ class Comment(Post):
         return self.text[:30]
 
 class Vote(models.Model):
-
-    value = models.SmallIntegerField('value')
+    VOTE_CHOICES = (
+        (1, 'Upvote'),
+        (-1, 'DownVote'),
+    )
+    value = models.SmallIntegerField('value', choices=VOTE_CHOICES)
     voted_by = models.ForeignKey(Redditer)
     voted_on = models.ForeignKey(Post)

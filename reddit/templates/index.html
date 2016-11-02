@@ -179,7 +179,7 @@
 			<div class="col-md-1" data-toggle="tooltip" title="Login to Vote">
 				<span class="glyphicon glyphicon-arrow-up disabled" onclick="alert('abcd')" aria-hidden="true"></span>
 				<center>
-					<p class="comments" id="votes">51</p>
+					<p class="comments" id="votes">{{p.num_votes}}</p>
 				</center>
 				<span class="glyphicon glyphicon-arrow-down disabled" onclick="alert('abcd')" aria-hidden="true"></span>
 			</div>
@@ -190,7 +190,9 @@
 				<a href={% url 'post' p.id %}>{{p.title}}</a> 
 				<p class="comments">Posted By: <a href={% url 'user' p.posted_by %} class="comments">{{ p.posted_by }}</a></p>
 				<p class="comments" id="time">{{p.created_on}}</p>
-				<p class="comments"><a href="post.html" class="comments">comments </a> points</p> 
+				<p class="comments"><a href={% url 'post' p.id %} class="comments">{{p.num_comments}} 
+				{% if p.num_comments < 2 %}comment{%else %}comments{%endif %}</a> points</p> 
+
 			</div>
 		</div>
 		{% endfor%}
