@@ -8,9 +8,7 @@ urlpatterns = [
     url(r'^signup$', views.signup, name='signup'),
     url(r'^logout$', views.logout, name='logout'),
     url(r'^user/(.*)$', views.user, name='user'),
-    url(r'^submitpost$', views.submitpost, name='submitpost'),
-    url(r'^submit$', views.newpost, name='newpost'),
-    url(r'^post/(.*)$', views.post, name='post'),
+    
 	# alternative way
     # url(r'^(?P<username>[0-9]+)/$', views.user, name='user'),
     # url(r'^myaccount$', views.myaccount, name='myaccount'),
