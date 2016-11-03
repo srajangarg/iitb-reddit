@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load staticfiles %}
+<head>
+    <link rel="stylesheet" href={% static "css/bootstrap.css" %}>
+    <script type="text/javascript" src={% static "js/jquery.1.11.1.js" %}></script>
+    <script type="text/javascript">
+        function posttype()
+        {
+            if (document.getElementById('link').checked) 
+            {
+                document.getElementById('Link').style.display = 'block';
+                document.getElementById('Text').style.display = 'none';
+            } 
+            else 
+            {
+                document.getElementById('Text').style.display = 'block';
+                document.getElementById('Link').style.display = 'none';
+            }
+
+        }
+    </script>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <div class="navbar navbar-inverse" >
+        <div class="container" style="margin-left:0px;margin-right:0px;width:98%">
+            <div class="navbar-header pull-left">
+                <a class="navbar-brand" href={% url 'index' %}><img src={% static "images/a.png" %} style="height:45px;width:70px"></a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="">SUBMIT</a></li>
+                    <!-- <li><a href="" onclick="link()">LINK</a></li> -->
+                    <!-- <li><a href="" onclick="text()">TEXT</a></li> -->
+                </ul>
+                <ul class="nav navbar-nav pull-right">
+                    {% if user.is_authenticated %}
+                    <li><a href={% url 'user' user %}>{{ user }} </a></li>
+                    <li><a href={% url 'logout'%}>Logout</a></li>
+                    {% else %}
+                    <li><a href="" data-toggle="modal" data-target="#myModal">Login or SignUp</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="container">
+        <div class="col-md-8">  
+            <h4>CREATE A NEW POST</h4><br>
+            <form role="form" action="{% url 'submitpost' %}" method="post">
+                    {% csrf_token %}
+                <h5 style="color:#049">POST TYPE</h5>
+                <label class="radio-inline">
+                    <input type="radio" name="type" value="link" id="link" onclick="posttype()" checked>Link
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="type" value="text" id="text" onclick="posttype()">Text
+                </label>
+                <h5 style="color:#049">Title</h5>
+                <input type="text" class="form-control" name="title" id="title" placeholder="Enter Title">
+                <h5 style="color:#049">Subreddit</h5>
+                <input type="text" class="form-control" name="subreddit" id="subreddit" placeholder="Enter Subreddit">
+                <div id="Link">
+                    <h5 style="color:#049">URL</h5>
+                    <input type="text" class="form-control" name="url" id="url" placeholder="Enter URL">
+                </div>
+                <div id="Text" style="display:none">
+                    <h5 style="color:#049">Text</h5>
+                    <input type="text" class="form-control" name="text" id="text" placeholder="Enter Text">
+                </div>
+                <input type="submit" class="btn btn-info btn-active" value="POST">  
+            </form> 
+        </div>
+    </div>
+
+    <script type="text/javascript" src={% static "js/bootstrap.js" %}></script>
+</body>
+</html>

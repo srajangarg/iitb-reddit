@@ -2,75 +2,111 @@
 <html lang="en">
 {% load staticfiles %}
 <head>
-	<link rel="stylesheet" href={% static "css/bootstrap.css" %}>
+    <link rel="stylesheet" href={% static "css/bootstrap.css" %}>
+    <script type="text/javascript" src={% static "js/jquery.1.11.1.js" %}></script>
+    <script type="text/javascript">
+        var voteStatus = [];
+        var numVotes = [];
+        {% for p in posts %}
+            voteStatus[{{p.id}}] = {{p.vote}}
+            numVotes[{{p.id}}] = {{p.num_votes}}
+        {% endfor %}
+
+        function vote (obj, id, type) {
+            $.ajax({type: "POST",
+                url: "{% url 'vote' %}",
+                data: { 
+                    action: type,
+                    postId: id,
+                    status: voteStatus[id],
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success:function(data,status){
+                    if (data.success == true)
+                    {
+                        data.vote = parseInt(data.vote);
+                        numVotes[id] += data.vote - voteStatus[id];
+                        $(obj.parentNode).find("#votes").text(numVotes[id]);
+                        voteStatus[id] = data.vote;
+                        if(voteStatus[id] == 1)
+                            $(obj.parentNode).find("#upvote")[0].style.color = "green";
+                        else
+                            $(obj.parentNode).find("#upvote")[0].style.color = "silver";
+
+                        if(voteStatus[id] == -1)
+                            $(obj.parentNode).find("#downvote")[0].style.color = "red";
+                        else
+                            $(obj.parentNode).find("#downvote")[0].style.color = "silver";
+                    }
+                }
+            });
+        }
+    </script>
 </head>
 
 <body>
-	<!-- Navbar -->
-	<div class="navbar navbar-inverse" >
-		<div class="container" style="margin-left:0px;margin-right:0px;width:98%">
-			<div class="navbar-header pull-left">
-				<a class="navbar-brand" href={% url 'index' %}><img src={% static "images/a.png" %} style="height:45px;width:70px"></a>
-			</div>
-			<div class="navbar-collapse collapse">
-				<ul class="nav navbar-nav">
-					<li><a href="#">POSTS</a></li>
-					<li><a href="#">COMMENTS</a></li>
-					<li><a href="#">UPVOTED</a></li>
-					<li><a href="#">DOWNVOTED</a></li>
-					<li><a href="#">SAVED</a></li>
-				</ul>
-				<ul class="nav navbar-nav pull-right">
-					<li><a href="">{{ username }}</a></li>
-					<li><a href={% url 'logout' %}>Logout</a></li>
-				</ul>
-			</div>
-		</div>
-	</div>
-	<br>
-	
-	<!-- Sidebar -->
-	<div class="col-md-4 pull-right">
-		<h5>Suggested Subreddits</h5>
-	</div>
+    <!-- Navbar -->
+    <div class="navbar navbar-inverse" >
+        <div class="container" style="margin-left:0px;margin-right:0px;width:98%">
+            <div class="navbar-header pull-left">
+                <a class="navbar-brand" href={% url 'index' %}><img src={% static "images/a.png" %} style="height:45px;width:70px"></a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="#">POSTS</a></li>
+                    <li><a href="#">COMMENTS</a></li>
+                    <li><a href="#">UPVOTED</a></li>
+                    <li><a href="#">DOWNVOTED</a></li>
+                    <li><a href="#">SAVED</a></li>
+                </ul>
+                <ul class="nav navbar-nav pull-right">
+                    {% if user.is_authenticated %}
+                    <li><a href={% url 'user' user %}>{{ user }} </a></li>
+                    <li><a href={% url 'logout'%}>Logout</a></li>
+                    {% else %}
+                    <li><a href="" data-toggle="modal" data-target="#myModal">Login or SignUp</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <br>
+    
+    <!-- Sidebar -->
+    <div class="col-md-4 pull-right">
+        <h5>Suggested Subreddits</h5>
+    </div>
 
-	<!-- Main Content -->
-	<div class="col-md-8">	
-		<div class="col-md-1">
-			<span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
-			<center>
-				<p class="comments">12</p>
-			</center>
-			<span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span>
-		</div>
-		<div class="col-md-2">
-			<img src={% static "images/a.png" %} style="width:60px;height:60px;">
-		</div>
-		<div class="col-md-9">
-			<a href="#">sdfghjkldfghjkldfghnjkdxfgbh</a> 
-			<br><br><a href="#" class="comments">comments</a> 
-		</div>
-	</div>
+    <!-- Main Content -->
+    {% for p in posts %}
+       <div class="col-md-8">  
+            <div class="col-md-1" data-toggle="tooltip" {% if user.is_authenticated %} title="Click to Vote" {% else %} title="Login to Vote" {% endif %}>
+                <span id="upvote" onclick="vote(this, {{p.id}}, 1)" {% if user.is_authenticated %} class="glyphicon glyphicon-arrow-up" {% else %} class="glyphicon glyphicon-arrow-up disabled" {% endif %} {% if p.vote == 1 %} style="color:green" {% else %} style="color:silver"{% endif %} aria-hidden="true"></span>
+                <center>
+                    <p class="comments" id="votes">{{p.num_votes}}</p>
+                </center>
+                <span id="downvote" onclick="vote(this, {{p.id}}, -1)" {% if user.is_authenticated %} class="glyphicon glyphicon-arrow-down" {% else %} class="glyphicon glyphicon-arrow-up disabled" {% endif %} {% if p.vote == -1 %} style="color:red"  {% else %} style="color:silver" {% endif %} aria-hidden="true"></span>
+            </div>
+            <div class="col-md-2">
+                <img src={% static "images/a.png" %} style="width:60px;height:60px;">
+            </div>
+            <div class="col-md-9">
+                {% if p.type == 'text' %}
+                <a href={% url 'post' p.id %}>{{p.title}}</a> 
+                {% else %}
+                <a href={{p.link}}>{{p.title}}</a>
+                {% endif %}
+                <p class="comments">Posted By: <a href={% url 'user' p.posted_by %} class="comments">{{ p.posted_by }}</a></p>
+                <p class="comments" id="time">{{p.created_on}}</p>
+                <p class="comments"><a href={% url 'post' p.id %} class="comments">{{p.num_comments}} 
+                {% if p.num_comments < 2 %}comment{%else %}comments{%endif %}</a> points</p> 
 
-	<div class="col-md-8">	
-		<div class="col-md-1">
-			<span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
-			<center>
-				<p class="comments">12</p>
-			</center>
-			<span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span>
-		</div>
-		<div class="col-md-2">
-			<img src={% static "images/a.png" %} style="width:60px;height:60px;">
-		</div>
-		<div class="col-md-9">
-			<a href="#">sdfghjkldfghjkldfghnjkdxfgbh</a> 
-			<br><br><a href="#" class="comments">comments</a> 
-		</div>
-	</div>
+            </div>
+        </div>
+    {% endfor%}
 
-	
-	<script type="text/javascript" src="js/jquery.1.11.1.js"></script>
-	<script type="text/javascript" src="js/bootstrap.js"></script>
+    
+    <script type="text/javascript" src="js/jquery.1.11.1.js"></script>
+    <script type="text/javascript" src="js/bootstrap.js"></script>
 </body>
 </html>
