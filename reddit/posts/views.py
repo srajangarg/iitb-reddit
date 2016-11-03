@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.contrib.auth import get_user_model
 from django.shortcuts import render, redirect
 from subreddits.models import Subreddit
-from posts.models import TextPost, LinkPost, Vote
+from posts.models import TextPost, LinkPost, Post, Vote
 import json
 
 def post(request, postID):
@@ -43,16 +43,23 @@ def vote(request):
         post_id = request.POST['postId']
         action = request.POST['action']
         status = request.POST['status']
-        qs = Vote.objects.filter(voted_on__id = int(post_id), voted_by = user)
+        print "Vote Request : " + user.email + " " + status +  " " + action + " " + post_id
+        p = Post.objects.get(id = post_id)
+        qs = Vote.objects.filter(voted_on = p, voted_by = user)
 
         if len(qs) == 0 and status != action:
-            v = Vote(value = action, voted_on__id = int(post_id), voted_by = user)
-            # insert
+            v = Vote(value = action, voted_on = p, voted_by = user)
+            v.save()
+            updated = action
         elif len(qs) > 0 and status == action:
             # TODO error handling
             qs.delete()
-        elif len(qs) > 0 and staus != action:
-            qs[0].update(value = action)
-        return HttpResponse(json.dumps({'success': True}), content_type="application/json")             
+            updated = 0
+        elif len(qs) > 0 and status != action:
+            qs.update(value = action)
+            updated = action
+        else:
+            updated = 0
+        return HttpResponse(json.dumps({'success' : True, 'vote' : updated}), content_type="application/json")             
     else:
-        return HttpResponse(json.dumps({'success': False}), content_type="application/json")     
+        return HttpResponse(json.dumps({'success' : False}), content_type="application/json")     
