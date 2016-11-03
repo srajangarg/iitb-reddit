@@ -1,13 +1,56 @@
 from django.http import HttpResponse
 from django.contrib.auth import get_user_model
 from django.shortcuts import render, redirect
+from django.db.models import Sum
 from subreddits.models import Subreddit
-from posts.models import TextPost, LinkPost, Post, Vote
+from .models import *
 import json
 
-def post(request, postID):
+def numComments(post):
+    
+    num = 0
+    qs = Comment.objects.filter(commented_on = post)
+    num += qs.count()
+    for c in qs:
+        num += numComments(c)
+    return num
+    
+def updatePostFeatures(post, user):
 
-    return render(request, "post.html")
+    post.num_votes = Vote.objects.filter(voted_on = post).aggregate(votes = Sum('value')).get('votes')
+    
+    post.num_comments = numComments(post)
+
+    if post.num_votes == None:
+        post.num_votes = 0
+
+    if user is not None:
+        qs = Vote.objects.filter(voted_on = post, voted_by = user)
+        if len(qs) > 0:
+            post.vote = qs[0].value
+    return post
+
+def getComments(post):
+
+    comments = []
+
+    for c in Comment.objects.filter(commented_on = post).extra(select={'childs' : 0}):
+        c.childs = getComments(c)
+        comments.append(c)
+
+    return comments
+
+# def printComments(comments, string = ""):
+
+#     for c in comments:
+#         print string + str(c.id)
+#         printComments(c.childs, "    ")
+
+def post(request, post_id):
+
+    p = Post.objects.get(id = post_id)
+    comments = getComments(p)
+    return render(request, "post.html", {'post' : p, 'comments' : comments})
 
 def newpost(request):
 
@@ -21,17 +64,21 @@ def submitpost(request):
     title = request.POST['title']
     subreddit_title = request.POST['subreddit']
     post_type = request.POST['type']
+
     if not request.user.is_authenticated():
         return HttpResponse("Login to post!")
 
-    subreddit = Subreddit.objects.get(title=subreddit_title)
-    
+    try:
+        subreddit = Subreddit.objects.get(title=subreddit_title)
+    except:
+        return HttpResponse("Subreddit Does Not Exist")
+
     if post_type == 'text':
         text = request.POST['text']
         p = TextPost(posted_by = request.user, posted_in=subreddit, title=title, text=text)
         p.save()
     else:
-        link = request.POST['link']
+        link = request.POST['url']
         p = LinkPost(posted_by = request.user, posted_in=subreddit, title=title, link=link)
         p.save()
     return HttpResponse("Posted")
@@ -43,11 +90,10 @@ def vote(request):
         post_id = request.POST['postId']
         action = request.POST['action']
         status = request.POST['status']
-        print "Vote Request : " + user.email + " " + status +  " " + action + " " + post_id
-        p = Post.objects.get(id = post_id)
-        qs = Vote.objects.filter(voted_on = p, voted_by = user)
+        qs = Vote.objects.filter(voted_on__id = post_id, voted_by = user)
 
         if len(qs) == 0 and status != action:
+            p = Post.objects.get(id = post_id)
             v = Vote(value = action, voted_on = p, voted_by = user)
             v.save()
             updated = action

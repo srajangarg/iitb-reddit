@@ -1,9 +1,9 @@
 from django.http import HttpResponse
 from django.contrib.auth import get_user_model, authenticate, login as auth_login, logout as auth_logout
 from django.shortcuts import render, redirect
-from django.db.models import Sum
 from subreddits.models import Subreddit
 from posts.models import TextPost, LinkPost, Comment, Vote
+from posts.views import updatePostFeatures
 
 def index(request):
     if request.user.is_authenticated():
@@ -57,20 +57,6 @@ def user(request, username):
 #         return redirect('user/' + user_email)
 #     else:
 #         return redirect('index')
-
-def updatePostFeatures(p, user):
-
-    p.num_votes = Vote.objects.filter(voted_on = p).aggregate(votes = Sum('value')).get('votes')
-    p.num_comments = Comment.objects.filter(commented_on = p).count()
-
-    if p.num_votes == None:
-        p.num_votes = 0
-
-    if user is not None:
-        qs = Vote.objects.filter(voted_on = p, voted_by = user)
-        if len(qs) > 0:
-            p.vote = qs[0].value
-    return p
 
 def feed(user = None):
     posts = []
