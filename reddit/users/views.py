@@ -45,9 +45,9 @@ def logout(request):
 
 def user(request, username):
     if request.user.is_authenticated():
-        userposts = userfeed(username)
-    else:
         userposts = userfeed(username, request.user)
+    else:
+        userposts = userfeed(username)
     return render(request, "user.html", {"posts" : userposts})
 
 # def myaccount(request):
