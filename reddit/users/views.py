@@ -6,8 +6,10 @@ from subreddits.models import Subreddit
 from posts.models import TextPost, LinkPost, Comment, Vote
 
 def index(request):
-
-    posts = feed()
+    if request.user.is_authenticated:
+        posts = feed(request.user)
+    else:
+        posts = feed()
     return render(request, "index.html", {"posts" : posts})
 
 def login(request):
@@ -18,7 +20,7 @@ def login(request):
     password = request.POST.get('password')
     user = authenticate(email=email, password=password)
     if user is not None:
-        auth_login(request, user)
+        auth_login(request, request.user)
         return redirect('index')
     else:
         return HttpResponse("Invalid credentials")
@@ -42,7 +44,10 @@ def logout(request):
     return redirect('index')
 
 def user(request, username):
-    userposts = userfeed(username)
+    if request.user.is_authenticated:
+        userposts = userfeed(username)
+    else:
+        userposts = userfeed(username, request.user)
     return render(request, "user.html", {"posts" : userposts})
 
 # def myaccount(request):
@@ -53,40 +58,38 @@ def user(request, username):
 #     else:
 #         return redirect('index')
 
-def feed():
+def updatePostFeatures(p, user):
 
+    p.num_votes = Vote.objects.filter(voted_on = p).aggregate(votes = Sum('value')).get('votes')
+    p.num_comments = Comment.objects.filter(commented_on = p).count()
+
+    if p.num_votes == None:
+        p.num_votes = 0
+
+    if user is not None:
+        qs = Vote.objects.filter(voted_on = p, voted_by = user)
+        if len(qs) > 0:
+            p.vote = qs[0].value
+    return p
+
+def feed(user = None):
     posts = []
-    for p in LinkPost.objects.extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s'}, 
+    for p in LinkPost.objects.extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0}, 
                                     select_params=('link',)):
-        p.num_votes = Vote.objects.filter(voted_on = p).aggregate(votes = Sum('value')).get('votes')
-        p.num_comments = Comment.objects.filter(commented_on = p).count()
-        if p.num_votes == None:
-            p.num_votes = 0
-        posts.append(p)
+        posts.append(updatePostFeatures(p, user))
     for p in TextPost.objects.extra(select = {'num_votes' : 0, 'num_comments' : 0, 'type' : '%s'}, 
                                     select_params = ('text',)):
-        p.num_votes = Vote.objects.filter(voted_on = p).aggregate(votes = Sum('value')).get('votes')
-        p.num_comments = Comment.objects.filter(commented_on = p).count()
-        if p.num_votes == None:
-            p.num_votes = 0
-        posts.append(p)
+        posts.append(updatePostFeatures(p, user))
     return posts
 
-def userfeed(username):
+
+def userfeed(username, user = None):
 
     posts = []
     for p in LinkPost.objects.filter(posted_by__email = username).extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s'}, 
                                     select_params=('link',)):
-        p.num_votes = Vote.objects.filter(voted_on = p).aggregate(votes = Sum('value')).get('votes')
-        p.num_comments = Comment.objects.filter(commented_on = p).count()
-        if p.num_votes == None:
-            p.num_votes = 0
-        posts.append(p)
+        posts.append(updatePostFeatures(p, user))
     for p in TextPost.objects.filter(posted_by__email = username).extra(select = {'num_votes' : 0, 'num_comments' : 0, 'type' : '%s'}, 
                                     select_params = ('text',)):
-        p.num_votes = Vote.objects.filter(voted_on = p).aggregate(votes = Sum('value')).get('votes')
-        p.num_comments = Comment.objects.filter(commented_on = p).count()
-        if p.num_votes == None:
-            p.num_votes = 0
-        posts.append(p)
+        posts.append(updatePostFeatures(p, user))
     return posts 
