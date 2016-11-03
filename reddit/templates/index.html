@@ -113,7 +113,7 @@
 					</li>
 				</ul>
 				<ul class="nav navbar-nav pull-right">
-					{% if user %}
+					{% if user.is_authenticated %}
 					<li><a href={% url 'user' user %}>{{ user }} </a></li>
 					<li><a href={% url 'logout'%}>Logout</a></li>
 					{% else %}
@@ -165,10 +165,10 @@
 	<!-- Sidebar -->
 	<div class="col-md-4 pull-right">
 		<h4>Related Subreddits</h4>
-		{% if user %}
+		{% if user.is_authenticated %}
 		<h5><a href={% url 'newpost' %}>Submit a new post</a></h5>
 		{% else %}
-		<h5>Sign-in to post</h5>
+		<h5><a href="" data-toggle="modal" data-target="#myModal">Sign-in</a> to post</h5>
 		{% endif %}
 	</div>
 

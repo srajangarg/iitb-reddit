@@ -8,7 +8,7 @@ from posts.models import TextPost, LinkPost, Comment, Vote
 def index(request):
 
     posts = feed()
-    return render(request, "index.html", {"username" : request.user, "posts" : posts})
+    return render(request, "index.html", {"posts" : posts})
 
 def login(request):
 
@@ -19,7 +19,7 @@ def login(request):
     user = authenticate(email=email, password=password)
     if user is not None:
         auth_login(request, user)
-        return render(request, "index.html")
+        return redirect('index')
     else:
         return HttpResponse("Invalid credentials")
 
