@@ -33,18 +33,18 @@
 		<h5>Related Subreddits</h5>
 	</div>
 
-	{# <!-- Main Content --> #}
+	<!-- Main Content -->
 
-	{# <!-- POST --> #}
+	<!-- POST -->
 	<div class="col-md-8">	
-		{# <!-- TODO --> #}
+		<!-- TODO -->
 		{# <!-- {% if user == "null" %} --> #}
 		<div class="col-md-1" data-toggle="tooltip" title="Login to Vote">
-			<span class="glyphicon glyphicon-arrow-up disabled" onclick="alert('abcd')" aria-hidden="true"></span>
+			<span class="glyphicon glyphicon-arrow-up disabled" aria-hidden="true"></span>
 			<center>
 				<p class="comments">12</p>
 			</center>
-			<span class="glyphicon glyphicon-arrow-down disabled" onclick="alert('abcd')" aria-hidden="true"></span>
+			<span class="glyphicon glyphicon-arrow-down disabled" aria-hidden="true"></span>
 		</div>
 		<div class="col-md-2">
 			<img src={% static "images/a.png" %} style="width:60px;height:60px;">
@@ -63,72 +63,27 @@
 	<div class="col-md-8">
 		<h4>Comments</h4><hr>
 	</div>	
-	{# <!-- TODO: For loop  --> #}
-	{# <!-- https://www.reddit.com/r/django/comments/3ar3ga/what_is_the_best_way_to_do_nested_comments_in/ --> #}
+	<!-- TODO: For loop  -->
 {# <!--
 	{% for obj in objects %}
 	    <li>{{ obj.name }} - {{ obj.locality }}</li>
 	{% endfor %} -->#}
 	<div class="col-md-8">	
-		{# <!-- TODO --> #}
+		<!-- TODO --> 
 		{# <!-- {% if user == "null" %} --> #}
 		<div class="col-md-1" data-toggle="tooltip" title="Login to Vote">
-			<span class="glyphicon glyphicon-arrow-up disabled" onclick="alert('abcd')" aria-hidden="true"></span>
+			<span class="glyphicon glyphicon-arrow-up disabled" aria-hidden="true"></span>
 			<center>
 				<p class="comments">12</p>
 			</center>
-			<span class="glyphicon glyphicon-arrow-down disabled" onclick="alert('abcd')" aria-hidden="true"></span>
+			<span class="glyphicon glyphicon-arrow-down disabled" aria-hidden="true"></span>
 		</div>
 		<div class="col-md-10">
 			<p class="comments"><a href="post.html" class="comments">{{ obj.postedby }}</a> points</p>
 			<p>sdfghjkldfghjkldfghnjkdxfgbh</p> 
 			<p class="comments"><a href="post.html" class="comments">reply </a></p>
 		</div>
-
-		<div class="col-md-11 col-md-offset-1" style="border-left:1px dotted #000">	
-			{# <!-- TODO --> #}
-			{# <!-- {% if user == "null" %} --> #}
-			<div class="col-md-2" data-toggle="tooltip" title="Login to Vote">
-				<span class="glyphicon glyphicon-arrow-up disabled" onclick="alert('abcd')" aria-hidden="true"></span>
-					<p class="comments">12</p>
-				<span class="glyphicon glyphicon-arrow-down disabled" onclick="alert('abcd')" aria-hidden="true"></span>
-			</div>
-			<div class="col-md-10">
-				<p class="comments"><a href="post.html" class="comments">{{ obj.postedby }}</a> points</p>
-				<p>sdfghjkldfghjkldfghnjkdxfgbh</p> 
-				<p class="comments"><a href="post.html" class="comments">reply </a></p>
-			</div>
-
-			<div class="col-md-11 col-md-offset-1" style="border-left:1px dotted #000">	
-				{# <!-- TODO --> #}
-				{# <!-- {% if user == "null" %} --> #}
-				<div class="col-md-2" data-toggle="tooltip" title="Login to Vote">
-					<span class="glyphicon glyphicon-arrow-up disabled" onclick="alert('abcd')" aria-hidden="true"></span>
-						<p class="comments">12</p>
-					<span class="glyphicon glyphicon-arrow-down disabled" onclick="alert('abcd')" aria-hidden="true"></span>
-				</div>
-				<div class="col-md-10">
-					<p class="comments"><a href="post.html" class="comments">{{ obj.postedby }}</a> points</p>
-					<p>sdfghjkldfghjkldfghnjkdxfgbh</p> 
-					<p class="comments"><a href="post.html" class="comments">reply </a></p>
-				</div>
-
-				<div class="col-md-11 col-md-offset-1" style="border-left:1px dotted #000">	
-					{# <!-- TODO --> #}
-					{# <!-- {% if user == "null" %} --> #}
-					<div class="col-md-2" data-toggle="tooltip" title="Login to Vote">
-						<span class="glyphicon glyphicon-arrow-up disabled" onclick="alert('abcd')" aria-hidden="true"></span>
-							<p class="comments">12</p>
-						<span class="glyphicon glyphicon-arrow-down disabled" onclick="alert('abcd')" aria-hidden="true"></span>
-					</div>
-					<div class="col-md-10">
-						<p class="comments"><a href="post.html" class="comments">{{ obj.postedby }}</a> points</p>
-						<p>sdfghjkldfghjkldfghnjkdxfgbh</p> 
-						<p class="comments"><a href="post.html" class="comments">reply </a></p>
-					</div>
-				</div>
-			</div>
-		</div>
+		{% include 'comment.html' %}
 	</div>
 
 	

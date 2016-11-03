@@ -71,21 +71,34 @@
 		    });
 		    $("#container").html(numericallyOrderedDivs);
 		});
-	});
-	</script>
-	<script type="text/javascript">
-		function link()
-		{
-			alert("asa");
-			document.getElementById('text').style.display = 'none';
-			document.getElementById('link').style.display = 'block';
-		}
 
-		function text()
-		{
-			document.getElementById('text').style.display = 'block';
-			document.getElementById('link').style.display = 'none';
-		}
+		$('#upvote').on('click', function () {
+			$.ajax({type: "POST",
+                url: {% url 'vote' %},
+                data: { action: 1, postId: {{p.id}}, status: {{p.vote}}},
+                success:function(result){
+        			{% if p.vote == 1 %} $("#votes").html({{p.num_votes}});
+        			{% elif p.vote == -1 %} $("#votes").html({{p.num_votes}} + 2);
+        			{% else %} $("#votes").html({{p.num_votes}} + 1);
+        			{% endif %}
+        		}
+        	});
+		});
+
+		$('#downvote').on('click', function () {
+			$.ajax({type: "POST",
+                url: {% url 'vote' %},
+                data: { action: -1, postId: {{p.id}}, status: {{p.vote}}},
+                success:function(result){
+        			{% if p.vote == 1 %} $("#votes").html({{p.num_votes}} - 2);
+        			{% elif p.vote == -1 %} $("#votes").html({{p.num_votes}});
+        			{% else %} $("#votes").html({{p.num_votes}} - 1);
+        			{% endif %}
+        		}
+        	});
+		});
+
+	});
 	</script>
 </head>
 
@@ -177,11 +190,11 @@
 		{% for p in posts %}
 		<div class="col-md-8">	
 			<div class="col-md-1" data-toggle="tooltip" title="Login to Vote">
-				<span class="glyphicon glyphicon-arrow-up disabled" onclick="alert('abcd')" aria-hidden="true"></span>
+				<span id="upvote" class="glyphicon glyphicon-arrow-up" {% if p.vote == 1 %} style="color:green" {% endif %} aria-hidden="true"></span>
 				<center>
 					<p class="comments" id="votes">{{p.num_votes}}</p>
 				</center>
-				<span class="glyphicon glyphicon-arrow-down disabled" onclick="alert('abcd')" aria-hidden="true"></span>
+				<span id="downvote" class="glyphicon glyphicon-arrow-down" {% if p.vote == -1 %} style="color:green" {% endif %} aria-hidden="true"></span>
 			</div>
 			<div class="col-md-2">
 				<img src={% static "images/a.png" %} style="width:60px;height:60px;">
