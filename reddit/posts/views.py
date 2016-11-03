@@ -10,7 +10,7 @@ def post(request, postID):
 
 def newpost(request):
 
-    if request.user.is_authenticated:
+    if request.user.is_authenticated():
         return render(request, "newpost.html")
     else:
         return HttpResponse("Login to post!")
@@ -37,7 +37,7 @@ def submitpost(request):
 
 def vote(request):
 
-    if request.user.is_authenticated:
+    if request.user.is_authenticated():
         user = request.user
         post_id = request.POST['postId']
         action = request.POST['action']

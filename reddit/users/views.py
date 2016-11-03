@@ -6,7 +6,7 @@ from subreddits.models import Subreddit
 from posts.models import TextPost, LinkPost, Comment, Vote
 
 def index(request):
-    if request.user.is_authenticated:
+    if request.user.is_authenticated():
         posts = feed(request.user)
     else:
         posts = feed()
@@ -20,7 +20,7 @@ def login(request):
     password = request.POST.get('password')
     user = authenticate(email=email, password=password)
     if user is not None:
-        auth_login(request, request.user)
+        auth_login(request, user)
         return redirect('index')
     else:
         return HttpResponse("Invalid credentials")
@@ -44,7 +44,7 @@ def logout(request):
     return redirect('index')
 
 def user(request, username):
-    if request.user.is_authenticated:
+    if request.user.is_authenticated():
         userposts = userfeed(username)
     else:
         userposts = userfeed(username, request.user)
