@@ -14,10 +14,10 @@ def numComments(post):
     for c in qs:
         num += numComments(c)
     return num
-    
-def updatePostFeatures(post, user):
 
-    post.num_votes = Vote.objects.filter(voted_on = post).aggregate(votes = Sum('value')).get('votes')
+def updatePostFeatures(post, user=None):
+
+    post.num_votes = Vote.objects.filter(voted_on__id = post.id).aggregate(votes = Sum('value')).get('votes')
     
     post.num_comments = numComments(post)
 
@@ -25,20 +25,42 @@ def updatePostFeatures(post, user):
         post.num_votes = 0
 
     if user is not None:
-        qs = Vote.objects.filter(voted_on = post, voted_by = user)
+        
+        qs = Vote.objects.filter(voted_on__id = post.id, voted_by = user)
         if len(qs) > 0:
             post.vote = qs[0].value
+
     return post
 
-def getComments(post):
+# def getComments(post):
+
+#     comments = []
+
+#     for c in Comment.objects.filter(commented_on = post).extra(select={'childs' : 0}):
+#         c.childs = getComments(c)
+#         comments.append(c)
+
+#     return comments
+
+
+def getComments(post, depth, user=None):
 
     comments = []
 
-    for c in Comment.objects.filter(commented_on = post).extra(select={'childs' : 0}):
-        c.childs = getComments(c)
-        comments.append(c)
+    for c in Comment.objects.filter(commented_on = post).extra(select={'depth' : 0, 'child' : 0, 'childrange' : 0, 'num_votes' : 0, 'num_comments' : 0, 'vote' : 0}):
+        updated_c = updatePostFeatures(c, user)
+        updated_c.depth = depth
+        comments.append(updated_c)
+        comments += getComments(updated_c, depth + 1, user)
 
-    return comments
+    d = 0
+    for c in comments:
+        c.child = c.depth - d
+        d = c.depth
+        if c.child < 0:
+            c.childrange = range(-c.child)
+    return comments 
+
 
 # def printComments(comments, string = ""):
 
@@ -48,9 +70,27 @@ def getComments(post):
 
 def post(request, post_id):
 
-    p = Post.objects.get(id = post_id)
-    comments = getComments(p)
-    return render(request, "post.html", {'post' : p, 'comments' : comments})
+    qs = TextPost.objects.filter(id = post_id)
+    if qs.count() == 1:
+        qs = qs.extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0}, 
+                                    select_params=('text',))
+        p = qs.get()
+    else:
+        qs = LinkPost.objects.filter(id = post_id)
+        print qs.count()
+        if qs.count() == 1:
+            qs = qs.extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0}, 
+                                    select_params=('link',))
+            p = qs.get()
+        else:
+            return HttpResponse("No such post!")
+    if request.user.is_authenticated(): 
+        updatePostFeatures(p,request.user)
+        comments = getComments(p, 0, request.user)
+    else:
+        updatePostFeatures(p)
+        comments = getComments(p, 0)
+    return render(request, "post.html", {"post" : p, "comments" : comments})
 
 def newpost(request):
 

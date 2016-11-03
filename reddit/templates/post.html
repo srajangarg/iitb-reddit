@@ -3,6 +3,47 @@
 {% load staticfiles %}
 <head>
     <link rel="stylesheet" href={% static "css/bootstrap.css" %}>
+    <script type="text/javascript" src={% static "js/jquery.1.11.1.js" %}></script>
+    <script type="text/javascript">
+        var voteStatus = [];
+        var numVotes = [];
+        voteStatus[{{post.id}}] = {{post.vote}}
+        numVotes[{{post.id}}] = {{post.num_votes}}
+        {% for c in comments %}
+            voteStatus[{{c.id}}] = {{c.vote}}
+            numVotes[{{c.id}}] = {{c.num_votes}}
+        {% endfor %}
+
+        function vote (obj, id, type) {
+            $.ajax({type: "POST",
+                url: "{% url 'vote' %}",
+                data: { 
+                    action: type,
+                    postId: id,
+                    status: voteStatus[id],
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success:function(data,status){
+                    if (data.success == true)
+                    {
+                        data.vote = parseInt(data.vote);
+                        numVotes[id] += data.vote - voteStatus[id];
+                        $(obj.parentNode).find("#votes").text(numVotes[id]);
+                        voteStatus[id] = data.vote;
+                        if(voteStatus[id] == 1)
+                            $(obj.parentNode).find("#upvote")[0].style.color = "green";
+                        else
+                            $(obj.parentNode).find("#upvote")[0].style.color = "silver";
+
+                        if(voteStatus[id] == -1)
+                            $(obj.parentNode).find("#downvote")[0].style.color = "red";
+                        else
+                            $(obj.parentNode).find("#downvote")[0].style.color = "silver";
+                    }
+                }
+            });
+        }
+    </script>
 </head>
 
 <body>
@@ -77,38 +118,37 @@
     <div class="col-md-8">
         <!-- TODO -->
         {# <!-- {% if user == "null" %} --> #}
-        <div class="col-md-1" data-toggle="tooltip" title="Login to Vote">
-            <span class="glyphicon glyphicon-arrow-up disabled" aria-hidden="true"></span>
+        <div class="col-md-1" data-toggle="tooltip" {% if user.is_authenticated %} title="Click to Vote" {% else %} title="Login to Vote" {% endif %}>
+            <span id="upvote" onclick="vote(this, {{post.id}}, 1)" {% if user.is_authenticated %} class="glyphicon glyphicon-arrow-up" {% else %} class="glyphicon glyphicon-arrow-up disabled" {% endif %} {% if post.vote == 1 %} style="color:green" {% else %} style="color:silver"{% endif %} aria-hidden="true"></span>
             <center>
-                <p class="comments">12</p>
+                <p class="comments" id="votes">{{post.num_votes}}</p>
             </center>
-            <span class="glyphicon glyphicon-arrow-down disabled" aria-hidden="true"></span>
+            <span id="downvote" onclick="vote(this, {{post.id}}, -1)" {% if user.is_authenticated %} class="glyphicon glyphicon-arrow-down" {% else %} class="glyphicon glyphicon-arrow-down disabled" {% endif %} {% if post.vote == -1 %} style="color:red"  {% else %} style="color:silver" {% endif %} aria-hidden="true"></span>
         </div>
         <div class="col-md-2">
             <img src={% static "images/a.png" %} style="width:60px;height:60px;">
         </div>
         <div class="col-md-9">
-            <a href="#">sdfghjkldfghjkldfghnjkdxfgbh</a> 
+            {% if post.type == 'text' %}
+            {{post.title}} 
+            {% else %}
+            <a href={{post.link}}>{{post.title}}</a>
+            {% endif %}
             <br><br><a href="#" class="comments">save</a> 
         </div>
         <br>
         <div class="col-md-8 col-md-offset-2">
-            POST
+            {{post.text}}
         </div>
     </div>
     <br>
     <!-- COMMENTS -->
     <div class="col-md-8">
         <h4>Comments</h4><hr>
-    </div>  
-    <!-- TODO: For loop  -->
-{# <!--
-    {% for obj in objects %}
-        <li>{{ obj.name }} - {{ obj.locality }}</li>
-    {% endfor %} -->#}
+    </div>
+<!--     {% comment %}
+    {% for c in comments %}
     <div class="col-md-8">  
-        <!-- TODO --> 
-        {# <!-- {% if user == "null" %} --> #}
         <div class="col-md-1" data-toggle="tooltip" title="Login to Vote">
             <span class="glyphicon glyphicon-arrow-up disabled" aria-hidden="true"></span>
             <center>
@@ -117,14 +157,53 @@
             <span class="glyphicon glyphicon-arrow-down disabled" aria-hidden="true"></span>
         </div>
         <div class="col-md-10">
-            <p class="comments"><a href="post.html" class="comments">{{ obj.postedby }}</a> points</p>
-            <p>sdfghjkldfghjkldfghnjkdxfgbh</p> 
+            <p class="comments"><a href={% url 'user' c.posted_by %}  class="comments">{{c.posted_by}}</a> {{c.created_on}}</p>
+            <p>{{c.text}}</p> 
             <p class="comments"><a href="post.html" class="comments">reply </a></p>
         </div>
     {#  {% include 'comment.html' %} #}
     </div>
+    {% endfor %}
+    {% endcomment %} -->
 
-    
+    <div>
+    {% for c in comments %}
+    {% if c.child == 1 %}
+    <div class="col-md-11 col-md-offset-1" style="border-left:1px dotted #000"> 
+    {% elif c.child == 0 and c.depth == 0 %}    
+    </div>
+    <div class="col-md-8">
+    {% elif c.child == 0 %}    
+    </div>
+    <div class="col-md-11 col-md-offset-1" style="border-left:1px dotted #000">
+    {% else %}
+    {% for i in c.childrange %}
+    </div>
+    {% endfor %}
+    {% if c.depth == 0 %}    
+    </div>
+    <div class="col-md-8">
+    {% else %}    
+    </div>
+    <div class="col-md-11 col-md-offset-1" style="border-left:1px dotted #000">
+    {% endif %}
+    {% endif %}
+        <!-- TODO --> 
+        {# <!-- {% if user == "null" %} --> #}
+        <div class="col-md-1" data-toggle="tooltip" {% if user.is_authenticated %} title="Click to Vote" {% else %} title="Login to Vote" {% endif %}>
+             <span id="upvote" onclick="vote(this, {{c.id}}, 1)" {% if user.is_authenticated %} class="glyphicon glyphicon-arrow-up" {% else %} class="glyphicon glyphicon-arrow-up disabled" {% endif %} {% if c.vote == 1 %} style="color:green" {% else %} style="color:silver"{% endif %} aria-hidden="true"></span>
+            <center>
+                <p class="comments" id="votes">{{c.num_votes}}</p>
+            </center>
+            <span id="downvote" onclick="vote(this, {{c.id}}, -1)" {% if user.is_authenticated %} class="glyphicon glyphicon-arrow-down" {% else %} class="glyphicon glyphicon-arrow-down disabled" {% endif %} {% if c.vote == -1 %} style="color:red"  {% else %} style="color:silver" {% endif %} aria-hidden="true"></span>
+        </div>
+        <div class="col-md-10">
+            <p class="comments"><a href={% url 'user' c.posted_by %}  class="comments">{{c.posted_by}}</a> {{c.created_on}}</p>
+            <p>{{c.text}}</p> 
+            <p class="comments"><a href="post.html" class="comments">reply </a></p>
+        </div>
+    {% endfor %}
+    </div>
     
     <script type="text/javascript" src={% static "js/jquery.1.11.1.js" %}></script>
     <script type="text/javascript" src={% static "js/bootstrap.js" %}></script>

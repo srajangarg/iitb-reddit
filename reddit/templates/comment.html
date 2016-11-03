@@ -1,0 +1,17 @@
+
+<div class="col-md-11 col-md-offset-1" style="border-left:1px dotted #000"> 
+    {# <!-- TODO --> #}
+    {# <!-- {% if user == "null" %} --> #}
+    {% for d in c.childs}
+    <div class="col-md-2" data-toggle="tooltip" title="Login to Vote">
+        <span class="glyphicon glyphicon-arrow-up disabled" aria-hidden="true"></span>
+            <p class="comments">12</p>
+        <span class="glyphicon glyphicon-arrow-down disabled" aria-hidden="true"></span>
+    </div>
+    <div class="col-md-10">
+        <p class="comments"><a href="post.html" class="comments">{{ obj.postedby }}</a> points</p>
+        <p>{{c}}</p> 
+        <p class="comments"><a href="post.html" class="comments">reply </a></p>
+    </div>
+    {# {% include 'comment.html' %} #}
+</div>
