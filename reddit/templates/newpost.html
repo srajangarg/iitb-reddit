@@ -3,7 +3,9 @@
 {% load staticfiles %}
 <head>
     <link rel="stylesheet" href={% static "css/bootstrap.css" %}>
+    <link rel="stylesheet" href={% static "css/jquery-ui.css" %}>
     <script type="text/javascript" src={% static "js/jquery.1.11.1.js" %}></script>
+    <script type="text/javascript" src={% static "js/jquery-ui.js" %}></script>
     <script type="text/javascript">
         function posttype()
         {
@@ -19,6 +21,14 @@
             }
 
         }
+        
+        $( function() {
+            var subreddits = {{ subreddits|safe }};
+            $("#subreddit").autocomplete({
+                source: subreddits
+            });
+        });
+
     </script>
 </head>
 
