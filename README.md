@@ -69,8 +69,6 @@ eg.
 ```
 for F in `echo "\dt" | ./manage.py dbshell | awk -F ' ' '{print $3}' | awk 'NR > 3'`; do echo "drop table $F cascade;" | ./manage.py dbshell; done
 
-find . -type f | grep "migrations" | grep -v "__init__" | xargs rm -rf
-
 ./manage.py makemigrations
 ./manage.py migrate
 echo "from django.contrib.auth import get_user_model; get_user_model().objects.create_superuser('admin', 'admin')" | python manage.py shell
