@@ -53,18 +53,14 @@
         function postreply(obj,cid)
         {
             $.ajax({type: "POST",
-                url: "{% url 'signup' %}",
+                url: "{% url 'submitcomment' %}",
                 data: { 
-                    action: type,
                     comment_on: cid,
                     reply: obj.previousElementSibling.value,
                     csrfmiddlewaretoken: '{{ csrf_token }}'
                 },
                 success:function(data,status){
-                    if (data.success == true)
-                    {
                         location.reload();
-                    }
                 }
             });
         }
