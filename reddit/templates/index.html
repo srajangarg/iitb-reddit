@@ -15,11 +15,6 @@
             var $divs = $("div.col-md-8");
             $('#new').on('click', function () {
                 var numericallyOrderedDivs = $divs.sort(function (a, b) {
-                    // console.log($(a).find("span").text());
-                    // if (parseInt($(a).find("span").text()) < 5)
-                 //     $(a).css ("display","none");
-                    // if (parseInt($(b).find("span").text()) < 5)
-                 //     $(b).css ("display","none");
                     return Date.parse($(a).find("#time").text()) < Date.parse($(b).find("#time").text());
                 });
                 $("#container").html(numericallyOrderedDivs);
@@ -159,9 +154,10 @@
                     <h5 style="color:#049">CREATE ACCOUNT</h5>
                     <form role="form" action="{% url 'signup' %}" method="post">
                     {% csrf_token %}
-                        <input type="text" class="form-control" name="name" id="name" placeholder="Enter Name">
-                        <input type="text" class="form-control" name="email" id="email" placeholder="Enter Email">
-                        <input type="text" class="form-control" name="password" id="password" placeholder="Enter Password">
+                        <input type="text" class="form-control" name="username" id="username" placeholder="Enter Username">
+                        <input type="text" class="form-control" name="password" id="password" placeholder="Enter Reddit Password">
+                        <input type="text" class="form-control" name="email" id="email" placeholder="Enter LDAP Email">
+                        <input type="text" class="form-control" name="ldappass" id="ldappass" placeholder="Enter LDAP Password">
                         <input type="submit" class="btn btn-info btn-active" value="CREATE">    
                     </form>
                 </div>

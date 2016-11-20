@@ -25,18 +25,26 @@ def login(request):
     else:
         return HttpResponse("Invalid credentials")
 
+
+def ldap():
+    return True
+
 def signup(request):
 
     if request.method == 'GET':
         return redirect('index')
+
     email = request.POST['email']
+    ldappass = request.POST['ldappass']
+    username = request.POST['email']
     password = request.POST['password']
 
-    user = get_user_model().objects.create_user(email, password)
-    if user is not None:
-        return HttpResponse("Successfully Signed Up!")
-    else:
-        return HttpResponse("Can't sign Up!")
+    if ldap():
+        user = get_user_model().objects.create_user(username, email, password)
+        if user is not None:
+            return HttpResponse("Successfully Signed Up!")
+
+    return HttpResponse("Can't sign Up!")
 
 def logout(request):
 
