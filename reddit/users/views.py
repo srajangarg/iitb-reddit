@@ -6,8 +6,8 @@ from subreddits.models import Subreddit
 from posts.models import TextPost, LinkPost, Comment, Vote
 from posts.views import updatePostFeatures
 
-import ldap
 import calendar
+import ldap
 from datetime import datetime, timedelta
 from math import log
 
