@@ -59,23 +59,30 @@ def user(request, username):
 #         return redirect('index')
 
 def feed(user = None):
+
     posts = []
+
     for p in LinkPost.objects.extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0}, 
                                     select_params=('link',)):
         posts.append(updatePostFeatures(p, user))
+
     for p in TextPost.objects.extra(select = {'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0}, 
                                     select_params = ('text',)):
         posts.append(updatePostFeatures(p, user))
-    return posts
+
+    return sorted(posts, key = lambda p: p.num_votes, reverse=True)
 
 
 def userfeed(username, user = None):
 
     posts = []
+
     for p in LinkPost.objects.filter(posted_by__email = username).extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0}, 
                                     select_params=('link',)):
         posts.append(updatePostFeatures(p, user))
+
     for p in TextPost.objects.filter(posted_by__email = username).extra(select = {'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0}, 
                                     select_params = ('text',)):
         posts.append(updatePostFeatures(p, user))
-    return posts 
+
+    return sorted(posts, key = lambda p: p.num_votes, reverse=True)

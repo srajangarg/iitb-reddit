@@ -47,7 +47,7 @@ def getComments(post, depth, user=None):
 
     comments = []
 
-    for c in Comment.objects.filter(commented_on = post).extra(select={'depth' : 0, 'child' : 0, 'childrange' : 0, 'num_votes' : 0, 'num_comments' : 0, 'vote' : 0}):
+    for c in Comment.objects.filter(commented_on = post).order_by('-created_on').extra(select={'depth' : 0, 'child' : 0, 'childrange' : 0, 'num_votes' : 0, 'num_comments' : 0, 'vote' : 0}):
         updated_c = updatePostFeatures(c, user)
         updated_c.depth = depth
         comments.append(updated_c)
@@ -92,14 +92,14 @@ def post(request, post_id):
         comments = getComments(p, 0)
     return render(request, "post.html", {"post" : p, "comments" : comments})
 
-def newpost(request):
+def newPost(request):
 
     if request.user.is_authenticated():
         return render(request, "newpost.html")
     else:
         return HttpResponse("Login to post!")
 
-def submitpost(request):
+def submitPost(request):
 
     title = request.POST['title']
     subreddit_title = request.POST['subreddit']
@@ -126,15 +126,14 @@ def submitpost(request):
 def vote(request):
 
     if request.user.is_authenticated():
-        user = request.user
         post_id = request.POST['postId']
         action = request.POST['action']
         status = request.POST['status']
-        qs = Vote.objects.filter(voted_on__id = post_id, voted_by = user)
+        qs = Vote.objects.filter(voted_on__id = post_id, voted_by = request.user)
 
         if len(qs) == 0 and status != action:
             p = Post.objects.get(id = post_id)
-            v = Vote(value = action, voted_on = p, voted_by = user)
+            v = Vote(value = action, voted_on = p, voted_by = request.user)
             v.save()
             updated = action
         elif len(qs) > 0 and status == action:
@@ -149,3 +148,14 @@ def vote(request):
         return HttpResponse(json.dumps({'success' : True, 'vote' : updated}), content_type="application/json")             
     else:
         return HttpResponse(json.dumps({'success' : False}), content_type="application/json")     
+
+def submitComment(request):
+
+    if request.user.is_authenticated():
+        comment_on_id = request.POST['comment_on']
+        reply = request.POST['reply']
+        p = Post.objects.get(id = comment_on_id)
+        c = Comment(posted_by = request.user, text = reply, commented_on = p)
+        c.save()
+
+    return HttpResponse("Sign in to comment")
