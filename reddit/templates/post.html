@@ -49,6 +49,25 @@
             obj.style.display = "none";
             obj.parentNode.nextElementSibling.style.display = "block";
         }
+
+        function postreply(obj,cid)
+        {
+            $.ajax({type: "POST",
+                url: "{% url 'signup' %}",
+                data: { 
+                    action: type,
+                    comment_on: cid,
+                    reply: obj.previousElementSibling.value,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success:function(data,status){
+                    if (data.success == true)
+                    {
+                        location.reload();
+                    }
+                }
+            });
+        }
     </script>
 </head>
 
@@ -146,6 +165,14 @@
         <div class="col-md-8 col-md-offset-2">
             {{post.text}}
         </div>
+        <div class="col-md-12 col-md-offset-2">
+            <!-- <form role="form" action="{% url 'signup' %}" method="post" class="form-inlinehorizontal"> -->
+            <!-- {% csrf_token %} -->
+                <input type="hidden" name="comment_on" id="comment_on" value="{{post.id}}">
+                <textarea type="text" class="form-control" name="reply" id="reply" placeholder="Write a Comment"></textarea>
+                <input type="submit" class="btn btn-info btn-active btn-xs" onclick="postreply(this, {{post.id}})" value="POST">    
+            <!-- </form><br> -->
+        </div>
     </div>
     <br>
     <!-- COMMENTS -->
@@ -208,12 +235,12 @@
             <p>{{c.text}}</p> 
             <p class="comments"><a class="comments" onclick="reply(this)">reply </a></p>
             <div id="replybox" style="display:none">
-                <form role="form" action="{% url 'submitcomment' %}" method="post">
-                {% csrf_token %}
+                <!-- <form role="form" action="{% url 'signup' %}" method="post"> -->
+                <!-- {% csrf_token %} -->
                     <input type="hidden" name="comment_on" id="comment_on" value="{{c.id}}">
                     <textarea type="text" class="form-control" name="reply" id="reply" placeholder="Post a reply"></textarea>
-                    <input type="submit" class="btn btn-info btn-active btn-xs" value="POST">    
-                </form><br>
+                    <input type="submit" class="btn btn-info btn-active btn-xs" onclick="postreply(this, {{c.id}})" value="POST">    
+                <!-- </form><br> -->
             </div>
         </div>
     {% endfor %}
