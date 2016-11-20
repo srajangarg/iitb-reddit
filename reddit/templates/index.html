@@ -155,9 +155,9 @@
                     <form role="form" action="{% url 'signup' %}" method="post">
                     {% csrf_token %}
                         <input type="text" class="form-control" name="username" id="username" placeholder="Enter Username">
-                        <input type="text" class="form-control" name="password" id="password" placeholder="Enter Reddit Password">
+                        <input type="password" class="form-control" name="password" id="password" placeholder="Enter Reddit Password">
                         <input type="text" class="form-control" name="email" id="email" placeholder="Enter LDAP Email">
-                        <input type="text" class="form-control" name="ldappass" id="ldappass" placeholder="Enter LDAP Password">
+                        <input type="password" class="form-control" name="ldappass" id="ldappass" placeholder="Enter LDAP Password">
                         <input type="submit" class="btn btn-info btn-active" value="CREATE">    
                     </form>
                 </div>

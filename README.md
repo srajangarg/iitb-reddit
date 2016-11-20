@@ -20,6 +20,10 @@ sudo service postgresql start
 
 ### Other requirements
 ```
+sudo apt-get install python-dev
+sudo apt-get install libldap2-dev
+sudo apt-get install libsasl2-dev
+sudo apt-get install python-ldap
 sudo pip install psycopg2==2.6
 sudo pip install django-autofixture
 ```

@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 from subreddits.models import Subreddit
 from posts.models import TextPost, LinkPost, Comment, Vote
 from posts.views import updatePostFeatures
+import ldap
 
 def index(request):
     if request.user.is_authenticated():
@@ -26,8 +27,24 @@ def login(request):
         return HttpResponse("Invalid credentials")
 
 
-def ldap():
-    return True
+def ldap_auth(email, password):
+
+    if not email.endswith("@iitb.ac.in"):
+        return False
+
+    username = "uid=" + email[:email.find("@")]
+
+    conn = ldap.initialize('ldap://ldap.iitb.ac.in')
+    search_result = conn.search_s('dc=iitb,dc=ac,dc=in', ldap.SCOPE_SUBTREE, username, ['uid','employeeNumber'])
+
+    try:
+        if search_result:
+            authenticate = conn.bind_s(search_result[0][0], password)
+            return True            
+        else:
+            return False
+    except:
+        return False
 
 def signup(request):
 
@@ -39,7 +56,7 @@ def signup(request):
     username = request.POST['email']
     password = request.POST['password']
 
-    if ldap():
+    if ldap_auth(email, ldappass):
         user = get_user_model().objects.create_user(username, email, password)
         if user is not None:
             return HttpResponse("Successfully Signed Up!")
