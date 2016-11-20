@@ -93,3 +93,8 @@ class Moderator(models.Model):
 
     redditer = models.ForeignKey(Redditer)
     subreddit = models.ForeignKey(Subreddit)
+
+# class Subscriber(models.Model):
+
+#     redditer = models.ForeignKey(Redditer)
+#     subreddit = models.ForeignKey(Subreddit)

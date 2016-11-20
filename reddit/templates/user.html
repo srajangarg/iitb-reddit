@@ -53,11 +53,10 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li><a href="#">POSTS</a></li>
+                    <li><a href={% url 'user' username %}>POSTS</a></li>
                     <li><a href="#">COMMENTS</a></li>
-                    <li><a href="#">UPVOTED</a></li>
-                    <li><a href="#">DOWNVOTED</a></li>
-                    <li><a href="#">SAVED</a></li>
+                    <li><a href={% url 'userupvoted' username %}>UPVOTED</a></li>
+                    <li><a href={% url 'userdownvoted' username %}>DOWNVOTED</a></li>
                 </ul>
                 <ul class="nav navbar-nav pull-right">
                     {% if user.is_authenticated %}
