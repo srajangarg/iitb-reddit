@@ -166,7 +166,11 @@
             <!-- {% csrf_token %} -->
                 <input type="hidden" name="comment_on" id="comment_on" value="{{post.id}}">
                 <textarea type="text" class="form-control" name="reply" id="reply" placeholder="Write a Comment"></textarea>
-                <input type="submit" class="btn btn-info btn-active btn-xs" onclick="postreply(this, {{post.id}})" value="POST">    
+                {% if user.is_authenticated %}
+                <input type="submit" class="btn btn-info btn-active btn-xs" onclick="postreply(this, {{post.id}})" value="POST">  
+                {% else %}
+                <input class="btn btn-info btn-active btn-xs" data-toggle="modal" data-target="#myModal" value="Login to Comment"> 
+                {% endif %}
             <!-- </form><br> -->
         </div>
     </div>
@@ -233,9 +237,12 @@
             <div id="replybox" style="display:none">
                 <!-- <form role="form" action="{% url 'signup' %}" method="post"> -->
                 <!-- {% csrf_token %} -->
-                    <input type="hidden" name="comment_on" id="comment_on" value="{{c.id}}">
-                    <textarea type="text" class="form-control" name="reply" id="reply" placeholder="Post a reply"></textarea>
-                    <input type="submit" class="btn btn-info btn-active btn-xs" onclick="postreply(this, {{c.id}})" value="POST">    
+                <input type="hidden" name="comment_on" id="comment_on" value="{{c.id}}">
+                <textarea type="text" class="form-control" name="reply" id="reply" placeholder="Post a reply"></textarea>
+                {% if user.is_authenticated %}
+                <input type="submit" class="btn btn-info btn-active btn-xs" onclick="postreply(this, {{c.id}})" value="POST"> {% else %}
+                <input class="btn btn-info btn-active btn-xs" data-toggle="modal" data-target="#myModal" value="Login to Comment"> 
+                {% endif %}   
                 <!-- </form><br> -->
             </div>
         </div>
