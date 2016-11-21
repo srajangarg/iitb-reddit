@@ -5,5 +5,6 @@ from . import views
 urlpatterns = [
 url(r'^(.*)$', views.index, name='subreddit'),
 url(r'^subscribe$', views.subscribe, name='subscribe'),
+url(r'^unsubscribe$', views.unsubscribe, name='unsubscribe'),
 url(r'^add$', views.addSubreddit, name='addsubreddit'),
 ]

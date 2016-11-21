@@ -43,6 +43,8 @@ def subscribersCount(subreddit):
 
 def addSubreddit(request):
 
+    if request.method == 'GET':
+        return redirect('index')
     subreddit_title = request.POST['subreddit']
     description = request.POST['description']
 
@@ -67,9 +69,32 @@ def addSubreddit(request):
 
 def subscribe(request):
 
+    if request.method == 'GET':
+        return redirect('index')
     subreddit_title = request.POST['subreddit']
-    if not request.user.is_authenticated() :
+    if not request.user.is_authenticated():
         return HttpResponse("Login to subscribe!")
 
-    subs = Subscriber(redditer=request.user, subreddit=subreddit)
-    subs.save()
+    qs = Subscriber.objects.filter(redditer = request.user, subreddit=subreddit)
+    
+    if qs.count() == 0:
+        subs = Subscriber(redditer=request.user, subreddit=subreddit)
+        subs.save()
+
+    return HttpResponse(json.dumps({'success' : True}), content_type="application/json")
+
+
+def unsubscribe(request):
+
+    if request.method == 'GET':
+        return redirect('index')
+    subreddit_title = request.POST['subreddit']
+    if not request.user.is_authenticated():
+        return HttpResponse("Login to subscribe!")
+
+    qs = Subscriber.objects.filter(redditer = request.user, subreddit=subreddit)
+    
+    if qs.count() > 0:
+        qs.delete()
+
+    return HttpResponse(json.dumps({'success' : True}), content_type="application/json")
