@@ -12,6 +12,7 @@ urlpatterns = [
     url(r'^user/([a-zA-Z0-9_@\.]*)$', views.user, name='user'),
     url(r'^user/([a-zA-Z0-9_@\.]*)/upvoted$', views.userUpvoted, name='userupvoted'),
     url(r'^user/([a-zA-Z0-9_@\.]*)/downvoted$', views.userDownvoted, name='userdownvoted'),
+    url(r'^(.*)$',views.user,name='user'),
 
 	# alternative way
     # url(r'^(?P<username>[0-9]+)/$', views.user, name='user'),
