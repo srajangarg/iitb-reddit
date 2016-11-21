@@ -2,6 +2,7 @@ from django.http import HttpResponse
 from django.contrib.auth import get_user_model, authenticate, login as auth_login, logout as auth_logout
 from django.shortcuts import render, redirect
 from django.utils import timezone
+from .models import *
 from subreddits.models import Subreddit
 from posts.models import TextPost, LinkPost, Comment, Vote
 from posts.views import updatePostFeatures
@@ -106,11 +107,12 @@ def user(request, username):
     except:
         return HttpResponse("User Does Not Exist")
     
+    moderated_subreddit = moderatedSubreddit(username)
     if request.user.is_authenticated():
         userposts = userPosts(username, request.user)
     else:
         userposts = userPosts(username)
-    return render(request, "user.html", {"posts" : userposts, "username" : username})
+    return render(request, "user.html", {"posts" : userposts, "username" : username, "moderates" : moderated_subreddit})
     
 
 def userUpvoted(request, username):
@@ -191,20 +193,20 @@ def top_feed(sort_type,user = None):
                                     select_params=('link',)):
         posts.append(updatePostFeatures(p, user))
 
-    for p in TextPost.objects.filter(created_on__gte=time_to_compare).extra(select = {'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
+    for p in TextPost.objects.filter(created_on__gte=time_to_compare).extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
                                     select_params = ('text',)):
         posts.append(updatePostFeatures(p, user))
-    return sorted(posts, key = lambda p: p.num_votes, reverse=True)
+    return sorted(posts, key=lambda p: p.num_votes, reverse=True)
 
 def userPosts(username, user = None):
 
     posts = []
 
-    for p in LinkPost.objects.filter(posted_by__username = username).extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
+    for p in LinkPost.objects.filter(posted_by__username=username).extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
                                     select_params=('link',)):
         posts.append(updatePostFeatures(p, user))
 
-    for p in TextPost.objects.filter(posted_by__username = username).extra(select = {'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
+    for p in TextPost.objects.filter(posted_by__username=username).extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
                                     select_params = ('text',)):
         posts.append(updatePostFeatures(p, user))
 
@@ -216,3 +218,11 @@ def userVotedPosts(username, vote, user = None):
     posts = [p for p in posts if votedByUser(p, username, vote)]
 
     return sorted(posts, key = lambda p: p.created_on, reverse=True)
+
+def moderatedSubreddit(username):
+
+    qs = Moderator.objects.filter(redditer__username=username)
+    subrs = []
+    for r in qs:
+        subrs.append(r.subreddit)
+    return subrs

@@ -51,12 +51,16 @@
                     csrfmiddlewaretoken: '{{ csrf_token }}'
                 },
                 success:function(data,status){
-                    console.log(data);
                     if (data.success == true)
                     {
                         obj.classList.remove('btn-success');
                         obj.classList.add('btn-danger');
                         obj.innerHTML = "Unsubscribe";
+                        obj.onclick = function() { unsubscribe(this); };
+                    }
+                    else
+                    {
+                        alert(data.Error);
                     }
                 }
             });            
@@ -76,6 +80,7 @@
                         obj.classList.remove('btn-danger');
                         obj.classList.add('btn-success');
                         obj.innerHTML = "Subscribe";
+                        obj.onclick = function() { subscribe(this); };
                     }
                 }
             });            
