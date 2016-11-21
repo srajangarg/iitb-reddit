@@ -60,6 +60,7 @@
                     csrfmiddlewaretoken: '{{ csrf_token }}'
                 },
                 success:function(data,status){
+                    if (data.success == true)
                         location.reload();
                 }
             });

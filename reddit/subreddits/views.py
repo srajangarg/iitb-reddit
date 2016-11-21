@@ -71,7 +71,7 @@ def subscribe(request):
 
     if request.method == 'GET':
         return redirect('index')
-    subreddit_title = request.POST['subreddit']
+    subreddit = request.POST['subreddit']
     if not request.user.is_authenticated():
         return HttpResponse("Login to subscribe!")
 
@@ -88,7 +88,7 @@ def unsubscribe(request):
 
     if request.method == 'GET':
         return redirect('index')
-    subreddit_title = request.POST['subreddit']
+    subreddit = request.POST['subreddit']
     if not request.user.is_authenticated():
         return HttpResponse("Login to subscribe!")
 
