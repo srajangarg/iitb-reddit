@@ -70,10 +70,24 @@ def logout(request):
 
 def user(request, username):
     if request.user.is_authenticated():
-        userposts = userfeed(username, request.user)
+        userposts = userPosts(username, request.user)
     else:
-        userposts = userfeed(username)
-    return render(request, "user.html", {"posts" : userposts})
+        userposts = userPosts(username)
+    return render(request, "user.html", {"posts" : userposts, "username" : username})
+
+def userUpvoted(request, username):
+    if request.user.is_authenticated():
+        userposts = userVotedPosts(username, 1, request.user)
+    else:
+        userposts = userVotedPosts(username, 1)
+    return render(request, "user.html", {"posts" : userposts, "username" : username})
+
+def userDownvoted(request, username):
+    if request.user.is_authenticated():
+        userposts = userVotedPosts(username, -1, request.user)
+    else:
+        userposts = userVotedPosts(username, -1)
+    return render(request, "user.html", {"posts" : userposts, "username" : username})
 
 # def myaccount(request):
 # 
@@ -82,6 +96,10 @@ def user(request, username):
 #         return redirect('user/' + user_email)
 #     else:
 #         return redirect('index')
+
+def votedByUser(post, user, vote):
+    qs = Vote.objects.filter(voted_on__id = post.id, voted_by__email = user)
+    return len(qs) > 0 and int(qs[0].value) == vote
 
 def feed(user = None):
 
@@ -98,7 +116,7 @@ def feed(user = None):
     return sorted(posts, key = lambda p: p.num_votes, reverse=True)
 
 
-def userfeed(username, user = None):
+def userPosts(username, user = None):
 
     posts = []
 
@@ -110,4 +128,11 @@ def userfeed(username, user = None):
                                     select_params = ('text',)):
         posts.append(updatePostFeatures(p, user))
 
-    return sorted(posts, key = lambda p: p.num_votes, reverse=True)
+    return sorted(posts, key = lambda p: p.created_on, reverse=True)
+
+def userVotedPosts(username, vote, user = None):
+
+    posts = feed(user)
+    posts = [p for p in posts if votedByUser(p, username, vote)]
+
+    return sorted(posts, key = lambda p: p.created_on, reverse=True)
