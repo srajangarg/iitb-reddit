@@ -10,11 +10,6 @@ class RedditerCreationForm(UserCreationForm):
 
     def __init__(self, *args, **kargs):
         super(RedditerCreationForm, self).__init__(*args, **kargs)
-        # del self.fields['username']
-
-    class Meta:
-        model = Redditer
-        fields = ("email",)
 
 class RedditerChangeForm(UserChangeForm):
     """A form for updating users. Includes all the fields on
@@ -24,8 +19,3 @@ class RedditerChangeForm(UserChangeForm):
 
     def __init__(self, *args, **kargs):
         super(RedditerChangeForm, self).__init__(*args, **kargs)
-        # del self.fields['username']
-
-    class Meta:
-        model = Redditer
-        fields = ("email",)
