@@ -13,23 +13,20 @@ class RedditerAdmin(UserAdmin):
     # These override the definitions on the base UserAdmin
     # that reference the removed 'username' field
     fieldsets = (
-        (None, {'fields': ('email', 'password')}),
-        (_('Personal info'), {'fields': ('first_name', 'last_name')}),
-        (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser',
+        (None, {'fields': ('username', 'email', 'password')}),
+        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser',
                                        'groups', 'user_permissions')}),
-        (_('Important dates'), {'fields': ('last_login', 'joined_on')}),
     )
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'password1', 'password2')}
+            'fields': ('username', 'email', 'password1', 'password2')}
         ),
     )
     form = RedditerChangeForm
     add_form = RedditerCreationForm
-    list_display = ('joined_on', 'email', 'first_name', 'last_name', 'is_staff')
-    search_fields = ('email', 'first_name', 'last_name')
-    ordering = ('email',)
+    list_display = ('joined_on', 'username', 'email')
+    search_fields = ('email', 'username')
 
 class ModeratorAdmin(admin.ModelAdmin):
 	list_display = ('redditer', 'subreddit')

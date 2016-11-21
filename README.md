@@ -20,6 +20,10 @@ sudo service postgresql start
 
 ### Other requirements
 ```
+sudo apt-get install python-dev
+sudo apt-get install libldap2-dev
+sudo apt-get install libsasl2-dev
+sudo apt-get install python-ldap
 sudo pip install psycopg2==2.6
 sudo pip install django-autofixture
 ```
@@ -69,7 +73,9 @@ eg.
 ```
 for F in `echo "\dt" | ./manage.py dbshell | awk -F ' ' '{print $3}' | awk 'NR > 3'`; do echo "drop table $F cascade;" | ./manage.py dbshell; done
 
+# find . -type f | grep "migrations" | grep -v "__init__" | xargs rm -rf
+
 ./manage.py makemigrations
 ./manage.py migrate
-echo "from django.contrib.auth import get_user_model; get_user_model().objects.create_superuser('admin', 'admin')" | python manage.py shell
+echo "from django.contrib.auth import get_user_model; get_user_model().objects.create_superuser('admin', 'admin@iitb.ac.in', admin')" | python manage.py shell
 ```
