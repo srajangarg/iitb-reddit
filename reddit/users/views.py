@@ -17,9 +17,9 @@ def login(request):
 
     if request.method == 'GET':
         return redirect('index')
-    email = request.POST.get('username')
+    username = request.POST.get('username')
     password = request.POST.get('password')
-    user = authenticate(email=email, password=password)
+    user = authenticate(username=username, password=password)
     if user is not None:
         auth_login(request, user)
         return redirect('index')
@@ -53,7 +53,7 @@ def signup(request):
 
     email = request.POST['email']
     ldappass = request.POST['ldappass']
-    username = request.POST['email']
+    username = request.POST['username']
     password = request.POST['password']
 
     if ldap_auth(email, ldappass):
