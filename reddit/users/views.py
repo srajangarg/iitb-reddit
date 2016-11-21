@@ -129,13 +129,10 @@ def userDownvoted(request, username):
 #     else:
 #         return redirect('index')
 
-<<<<<<< HEAD
 def votedByUser(post, user, vote):
     qs = Vote.objects.filter(voted_on__id = post.id, voted_by__email = user)
     return len(qs) > 0 and int(qs[0].value) == vote
 
-=======
->>>>>>> bb771627e1f8d01c899e2e1985e02c0fceef71b7
 def feed(ranking="", user = None):
 
     posts = []
@@ -180,19 +177,10 @@ def top_feed(sort_type,user = None):
         extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
                                     select_params=('link',)):
         posts.append(updatePostFeatures(p, user))
-<<<<<<< HEAD
 
     for p in TextPost.objects.filter(created_on__gte=time_to_compare).extra(select = {'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
                                     select_params = ('text',)):
         posts.append(updatePostFeatures(p, user))
-
-=======
-
-    for p in TextPost.objects.filter(created_on__gte=time_to_compare).extra(select = {'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
-                                    select_params = ('text',)):
-        posts.append(updatePostFeatures(p, user))
-
->>>>>>> bb771627e1f8d01c899e2e1985e02c0fceef71b7
     return sorted(posts, key = lambda p: p.num_votes, reverse=True)
 
 def userPosts(username, user = None):
