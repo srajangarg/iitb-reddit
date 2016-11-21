@@ -11,68 +11,6 @@
             voteStatus[{{p.id}}] = {{p.vote}}
             numVotes[{{p.id}}] = {{p.num_votes}}
         {% endfor %}
-        $( document ).ready(function() {
-            var $divs = $("div.col-md-8");
-            $('#new').on('click', function () {
-                var numericallyOrderedDivs = $divs.sort(function (a, b) {
-                    return Date.parse($(a).find("#time").text()) < Date.parse($(b).find("#time").text());
-                });
-                $("#container").html(numericallyOrderedDivs);
-            });
-
-            $('#hot').on('click', function () {
-                var numericallyOrderedDivs = $divs.sort(function (a, b) {
-                    return parseInt($(a).find("#votes").text()) < parseInt($(b).find("#votes").text());
-                });
-                $("#container").html(numericallyOrderedDivs);
-            });
-
-            $('#rising').on('click', function () {
-                var numericallyOrderedDivs = $divs.sort(function (a, b) {
-                    return Date.parse($(a).find("#time").text()) < Date.parse($(b).find("#time").text());
-                });
-                $("#container").html(numericallyOrderedDivs);
-            });
-
-            $('#day').on('click', function () {
-                var numericallyOrderedDivs = $divs.sort(function (a, b) {
-                    if (Date($.now()) - Date.parse($(a).find("#time").text()) < 5)
-                        $(a).css ("display","none");
-                    if (parseInt($(b).find("span").text()) < 5)
-                        $(b).css ("display","none");
-                    return parseInt($(a).find("#votes").text()) < parseInt($(b).find("#votes").text());
-                });
-                $("#container").html(numericallyOrderedDivs);
-            });
-
-            $('#week').on('click', function () {
-                var numericallyOrderedDivs = $divs.sort(function (a, b) {
-                    return parseInt($(a).find("#votes").text()) < parseInt($(b).find("#votes").text());
-                });
-                $("#container").html(numericallyOrderedDivs);
-            });
-
-            $('#month').on('click', function () {
-                var numericallyOrderedDivs = $divs.sort(function (a, b) {
-                    return parseInt($(a).find("#votes").text()) < parseInt($(b).find("#votes").text());
-                });
-                $("#container").html(numericallyOrderedDivs);
-            });
-
-            $('#year').on('click', function () {
-                var numericallyOrderedDivs = $divs.sort(function (a, b) {
-                    return parseInt($(a).find("#votes").text()) < parseInt($(b).find("#votes").text());
-                });
-                $("#container").html(numericallyOrderedDivs);
-            });
-
-            $('#all').on('click', function () {
-                var numericallyOrderedDivs = $divs.sort(function (a, b) {
-                    return parseInt($(a).find("#votes").text()) < parseInt($(b).find("#votes").text());
-                });
-                $("#container").html(numericallyOrderedDivs);
-            });
-        });
 
         function vote (obj, id, type) {
             $.ajax({type: "POST",
@@ -115,17 +53,17 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li><a id="hot">HOT</a></li>
-                    <li><a id="new">NEW</a></li>
-                    <li><a id="rising">RISING</a></li>
+                    <li><a href={% url 'feed' "hot" %} id="hot">HOT</a></li>
+                    <li><a href={% url 'feed' "new" %} id="new">NEW</a></li>
                     <li class="dropdown">
                         <a id="top" class="dropdown-toggle" data-toggle="dropdown">TOP</a>
                         <ul class="dropdown-menu">
-                            <li><a id="day">Past 24hrs</a></li>
-                            <li><a id="week">Past Week</a></li>
-                            <li><a id="month">Past Month</a></li>
-                            <li><a id="year">Past Year</a></li>
-                            <li><a id="all">All Time</a></li>
+                            <li><a href={% url 'topfeed' "hour" %} "id="hour">Past Hour</a></li>
+                            <li><a href={% url 'topfeed' "day" %} id="day">Past 24hrs</a></li>
+                            <li><a href={% url 'topfeed' "week" %} id="week">Past Week</a></li>
+                            <li><a href={% url 'topfeed' "month" %} id="month">Past Month</a></li>
+                            <li><a href={% url 'topfeed' "year" %} id="year">Past Year</a></li>
+                            <li><a href={% url 'topfeed' "all" %} id="all">All Time</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -182,11 +120,13 @@
 
     <!-- Sidebar -->
     <div class="col-md-4 pull-right">
-        <h4>Related Subreddits</h4>
+        <h4>Popular Subreddits</h4>
         {% if user.is_authenticated %}
-        <h5><a href={% url 'newpost' %}>Submit a new post</a></h5>
+        <h5><a class="btn btn-success btn-active" href={% url 'newpost' %}>Submit a new post</a></h5>
+        <h5><a class="btn btn-success btn-active" href={% url 'addsubreddit' %}>Create a Subreddit</a></h5>
         {% else %}
-        <h5><a href="" data-toggle="modal" data-target="#myModal">Sign-in</a> to post</h5>
+        <h5><a data-toggle="modal" data-target="#myModal">Sign-in</a> to post</h5>
+        <h5><a data-toggle="modal" data-target="#myModal">Sign-in</a> to create a new subreddit</h5>
         {% endif %}
     </div>
 

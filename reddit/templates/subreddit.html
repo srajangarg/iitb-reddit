@@ -41,6 +41,50 @@
                 }
             });
         }
+
+        function subscribe (obj)
+        {
+            $.ajax({type: "POST",
+                url: "{% url 'subscribe' %}",
+                data: { 
+                    subreddit: '{{ subreddit }}',
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success:function(data,status){
+                    if (data.success == true)
+                    {
+                        obj.classList.remove('btn-success');
+                        obj.classList.add('btn-danger');
+                        obj.innerHTML = "Unsubscribe";
+                        obj.onclick = function() { unsubscribe(this); };
+                    }
+                    else
+                    {
+                        alert(data.Error);
+                    }
+                }
+            });            
+        }
+
+        function unsubscribe (obj)
+        {
+            $.ajax({type: "POST",
+                url: "{% url 'unsubscribe' %}",
+                data: { 
+                    subreddit: '{{ subreddit }}',
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success:function(data,status){
+                    if (data.success == true)
+                    {
+                        obj.classList.remove('btn-danger');
+                        obj.classList.add('btn-success');
+                        obj.innerHTML = "Subscribe";
+                        obj.onclick = function() { subscribe(this); };
+                    }
+                }
+            });            
+        }
     </script>
 </head>
 
@@ -53,11 +97,20 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li><h6><strong>{{ username }}</strong></h6></li>
-                    <li><a href={% url 'user' username %}>POSTS</a></li>
-                    <li><a href="#">COMMENTS</a></li>
-                    <li><a href={% url 'userupvoted' username %}>UPVOTED</a></li>
-                    <li><a href={% url 'userdownvoted' username %}>DOWNVOTED</a></li>
+                    <li><h6><strong>{{ subreddit }}</strong></h6></li>
+                    <li><a id="hot">HOT</a></li>
+                    <li><a id="new">NEW</a></li>
+                    <li><a id="rising">RISING</a></li>
+                    <li class="dropdown">
+                        <a id="top" class="dropdown-toggle" data-toggle="dropdown">TOP</a>
+                        <ul class="dropdown-menu">
+                            <li><a id="day">Past 24hrs</a></li>
+                            <li><a id="week">Past Week</a></li>
+                            <li><a id="month">Past Month</a></li>
+                            <li><a id="year">Past Year</a></li>
+                            <li><a id="all">All Time</a></li>
+                        </ul>
+                    </li>
                 </ul>
                 <ul class="nav navbar-nav pull-right">
                     {% if user.is_authenticated %}
@@ -70,9 +123,8 @@
             </div>
         </div>
     </div>
-    <br>
-    
-     <!-- Modal (Login Pop up) -->
+
+    <!-- Modal (Login Pop up) -->
     <div id="myModal" class="modal" role="dialog" tabindex='-1'>
     <center>
         <div class="modal-lg">
@@ -109,15 +161,38 @@
     </center>
     </div>
     <br>
+
     <!-- Sidebar -->
     <div class="col-md-4 pull-right">
-        <h5><strong>{{ username }}</strong></h5>
-        <h5><a class="btn btn-success btn-active" href={% url 'addsubreddit' %}>Create a Subreddit</a></h5>
+        <h4>About {{ subreddit }}:</h4>
+        <p>{{ subreddit.description }}</p>
+        <h4>Popular Subreddits</h4>
+        <h5>{{num_subscribers}} Subscribers</h5>
+        {% if user.is_authenticated %}
+        <h5><a class="btn btn-success btn-active" href={% url 'newpost' %}>Submit a new post</a></h5>
+            {% if subscribed %}
+            <h5><a class="btn btn-danger btn-active" onclick="unsubscribe(this)" %}>Unsubscribe</a></h5>
+            {% else %}
+            <h5><a class="btn btn-success btn-active" onclick="subscribe(this)" %}>Subscribe</a></h5>
+            {% endif %}
+        {% else %}
+        <h5><a data-toggle="modal" data-target="#myModal">Sign-in</a> to post</h5>
+        <h5><a data-toggle="modal" data-target="#myModal">Subscribe</a></h5>
+        {% endif %}
+        <!-- <h4><strong>Rules:</strong></h4>
+        <ul>
+            {#
+            {% for r in rules %}
+                <li>{{r}}</li>
+            {% endfor %}
+            #}
+        </ul> -->
     </div>
 
     <!-- Main Content -->
-    {% for p in posts %}
-       <div class="col-md-8">  
+    <div id="container">
+        {% for p in posts %}
+        <div class="col-md-8">  
             <div class="col-md-1" data-toggle="tooltip" {% if user.is_authenticated %} title="Click to Vote" {% else %} title="Login to Vote" {% endif %}>
                 <span id="upvote" onclick="vote(this, {{p.id}}, 1)" {% if user.is_authenticated %} class="glyphicon glyphicon-arrow-up" {% else %} class="glyphicon glyphicon-arrow-up disabled" {% endif %} {% if p.vote == 1 %} style="color:green" {% else %} style="color:silver"{% endif %} aria-hidden="true"></span>
                 <center>
@@ -134,16 +209,16 @@
                 {% else %}
                 <a href={{p.link}}>{{p.title}}</a>
                 {% endif %}
-                <p class="comments">Posted By: <a href={% url 'user' p.posted_by %} class="comments">{{ p.posted_by }}</a></p>
+                <p class="comments">Posted By: <a href={% url 'user' p.posted_by %} class="comments">{{p.posted_by}}</a> to <a href={% url 'subreddit' p.posted_in %} class="comments">{{p.posted_in}}</a></p>
                 <p class="comments" id="time">{{p.created_on}}</p>
                 <p class="comments"><a href={% url 'post' p.id %} class="comments">{{p.num_comments}} 
                 {% if p.num_comments < 2 %}comment{%else %}comments{%endif %}</a> points</p> 
 
             </div>
         </div>
-    {% endfor%}
+        {% endfor%}
+    </div>
 
-    
     <script type="text/javascript" src={% static "js/bootstrap.js" %}></script>
 </body>
 </html>

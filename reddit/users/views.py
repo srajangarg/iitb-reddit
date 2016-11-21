@@ -2,6 +2,7 @@ from django.http import HttpResponse
 from django.contrib.auth import get_user_model, authenticate, login as auth_login, logout as auth_logout
 from django.shortcuts import render, redirect
 from django.utils import timezone
+from .models import *
 from subreddits.models import Subreddit
 from posts.models import TextPost, LinkPost, Comment, Vote
 from posts.views import updatePostFeatures
@@ -101,11 +102,18 @@ def logout(request):
     return redirect('index')
 
 def user(request, username):
+    try:
+        view_user = get_user_model().objects.get(username = username)
+    except:
+        return HttpResponse("User Does Not Exist")
+    
+    moderated_subreddit = moderatedSubreddit(username)
     if request.user.is_authenticated():
         userposts = userPosts(username, request.user)
     else:
         userposts = userPosts(username)
-    return render(request, "user.html", {"posts" : userposts, "username" : username})
+    return render(request, "user.html", {"posts" : userposts, "username" : username, "moderates" : moderated_subreddit})
+    
 
 def userUpvoted(request, username):
     if request.user.is_authenticated():
@@ -130,10 +138,10 @@ def userDownvoted(request, username):
 #         return redirect('index')
 
 def votedByUser(post, user, vote):
-    qs = Vote.objects.filter(voted_on__id = post.id, voted_by__email = user)
+    qs = Vote.objects.filter(voted_on__id = post.id, voted_by__username = user)
     return len(qs) > 0 and int(qs[0].value) == vote
 
-def feed(ranking="", user = None):
+def allPosts(user):
 
     posts = []
 
@@ -144,6 +152,13 @@ def feed(ranking="", user = None):
     for p in TextPost.objects.extra(select = {'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
                                     select_params = ('text',)):
         posts.append(updatePostFeatures(p, user))
+
+    return posts
+
+def feed(ranking="", user = None):
+
+    posts = allPosts(user)
+
     if(ranking == "" or ranking == "hot"):
         return sorted(posts, key = lambda post : hot(post.num_votes, post.created_on),reverse=True)
     elif(ranking == "new"):
@@ -178,20 +193,20 @@ def top_feed(sort_type,user = None):
                                     select_params=('link',)):
         posts.append(updatePostFeatures(p, user))
 
-    for p in TextPost.objects.filter(created_on__gte=time_to_compare).extra(select = {'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
+    for p in TextPost.objects.filter(created_on__gte=time_to_compare).extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
                                     select_params = ('text',)):
         posts.append(updatePostFeatures(p, user))
-    return sorted(posts, key = lambda p: p.num_votes, reverse=True)
+    return sorted(posts, key=lambda p: p.num_votes, reverse=True)
 
 def userPosts(username, user = None):
 
     posts = []
 
-    for p in LinkPost.objects.filter(posted_by__email = username).extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
+    for p in LinkPost.objects.filter(posted_by__username=username).extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
                                     select_params=('link',)):
         posts.append(updatePostFeatures(p, user))
 
-    for p in TextPost.objects.filter(posted_by__email = username).extra(select = {'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
+    for p in TextPost.objects.filter(posted_by__username=username).extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
                                     select_params = ('text',)):
         posts.append(updatePostFeatures(p, user))
 
@@ -199,7 +214,15 @@ def userPosts(username, user = None):
 
 def userVotedPosts(username, vote, user = None):
 
-    posts = feed("",user)
+    posts = allPosts(user)
     posts = [p for p in posts if votedByUser(p, username, vote)]
 
     return sorted(posts, key = lambda p: p.created_on, reverse=True)
+
+def moderatedSubreddit(username):
+
+    qs = Moderator.objects.filter(redditer__username=username)
+    subrs = []
+    for r in qs:
+        subrs.append(r.subreddit)
+    return subrs
