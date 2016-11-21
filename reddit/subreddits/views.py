@@ -158,3 +158,34 @@ def addModerator(request):
     m.save()
 
     return HttpResponse(json.dumps({'success' : True}), content_type="application/json")
+
+def delModerator(request):
+    if request.method == 'GET':
+        return redirect('index')
+
+    subreddit_title = request.POST['subreddit']
+        
+    try:
+        subreddit = Subreddit.objects.get(title=subreddit_title)
+    except:
+        return HttpResponse(json.dumps({'success' : False, 'Error' : "Subreddit Does not exist"}), content_type="application/json")
+    
+    moderators = getModerators(subreddit)
+    
+    if not request.user.is_authenticated():
+        return HttpResponse(json.dumps({'success' : False, 'Error' : "Login to add!"}), content_type="application/json")
+    elif not request.user in moderators:
+        return HttpResponse(json.dumps({'success' : False, 'Error' : "Not a Mod!"}), content_type="application/json")
+
+    qs = Moderator.objecs.get(redditer=request.user, subreddit=subreddit)
+    qs.delete()
+
+    if len(moderators) == 1:
+        assignNewModerator(subreddit)
+
+    return HttpResponse(json.dumps({'success' : True}), content_type="application/json")
+
+def assignNewModerator(subreddit):
+# TODO by garg
+    return    
+

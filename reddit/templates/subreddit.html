@@ -5,6 +5,7 @@
     <link rel="stylesheet" href={% static "css/bootstrap.css" %}>
     <script type="text/javascript" src={% static "js/jquery.1.11.1.js" %}></script>
     <script type="text/javascript">
+        var num_subscribers = {{num_subscribers}}
         var voteStatus = [];
         var numVotes = [];
         {% for p in posts %}
@@ -57,6 +58,8 @@
                         obj.classList.add('btn-danger');
                         obj.innerHTML = "Unsubscribe";
                         obj.onclick = function() { unsubscribe(this); };
+                        num_subscribers += 1;
+                        document.getElementById('subscribers').innerHTML = num_subscribers;
                     }
                     else
                     {
@@ -81,6 +84,8 @@
                         obj.classList.add('btn-success');
                         obj.innerHTML = "Subscribe";
                         obj.onclick = function() { subscribe(this); };
+                        num_subscribers -= 1;
+                        document.getElementById('subscribers').innerHTML = num_subscribers;
                     }
                 }
             });            
@@ -167,13 +172,13 @@
         <h4>About {{ subreddit }}:</h4>
         <p>{{ subreddit.description }}</p>
         <h4>Popular Subreddits</h4>
-        <h5>{{num_subscribers}} Subscribers</h5>
+        <h5><span id=subscribers>{{num_subscribers}}</span> Subscribers</h5>
         {% if user.is_authenticated %}
-        <h5><a class="btn btn-success btn-active" href={% url 'newpost' %}>Submit a new post</a></h5>
+        <h5><a class="btn btn-success btn-active" href={% url 'newpost' %}?subreddit={{ subreddit }}>Submit a new post</a></h5>
             {% if subscribed %}
-            <h5><a class="btn btn-danger btn-active" onclick="unsubscribe(this)" %}>Unsubscribe</a></h5>
+            <h5><a class="btn btn-danger btn-active" onclick="unsubscribe(this)">Unsubscribe</a></h5>
             {% else %}
-            <h5><a class="btn btn-success btn-active" onclick="subscribe(this)" %}>Subscribe</a></h5>
+            <h5><a class="btn btn-success btn-active" onclick="subscribe(this)">Subscribe</a></h5>
             {% endif %}
         {% else %}
         <h5><a data-toggle="modal" data-target="#myModal">Sign-in</a> to post</h5>

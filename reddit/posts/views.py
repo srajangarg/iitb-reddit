@@ -96,7 +96,8 @@ def newPost(request):
 
     if request.user.is_authenticated():
         subreddits = [str(s.title) for s in Subreddit.objects.all()]
-        return render(request, "newpost.html", {"subreddits" : subreddits})
+        selected_subreddit = request.GET.get('subreddit', "")
+        return render(request, "newpost.html", {"subreddits" : subreddits, "selected_subreddit" : selected_subreddit})
     else:
         return HttpResponse("Login to post!")
 

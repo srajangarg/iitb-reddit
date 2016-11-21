@@ -153,7 +153,7 @@
                 <p class="comments">Posted By: <a href={% url 'user' p.posted_by %} class="comments">{{p.posted_by}}</a> to <a href={% url 'subreddit' p.posted_in %} class="comments">{{p.posted_in}}</a></p>
                 <p class="comments" id="time">{{p.created_on}}</p>
                 <p class="comments"><a href={% url 'post' p.id %} class="comments">{{p.num_comments}} 
-                {% if p.num_comments < 2 %}comment{%else %}comments{%endif %}</a> points</p> 
+                {% if p.num_comments < 2 %}comment{%else %}comments{%endif %}</a></p> 
 
             </div>
         </div>
