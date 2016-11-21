@@ -9,9 +9,12 @@ urlpatterns = [
     url(r'^login$', views.login, name='login'),
     url(r'^signup$', views.signup, name='signup'),
     url(r'^logout$', views.logout, name='logout'),
-    url(r'^user/([a-zA-Z0-9_@ \.]*)$', views.user, name='user'),
-    url(r'^user/([a-zA-Z0-9_@ \.]*)/upvoted$', views.userUpvoted, name='userupvoted'),
-    url(r'^user/([a-zA-Z0-9_@ \.]*)/downvoted$', views.userDownvoted, name='userdownvoted'),
+    url(r'^user/(.*)$', views.user, name='user'),
+    url(r'^user/(.*)/upvoted$', views.userUpvoted, name='userupvoted'),
+    url(r'^user/(.*)/downvoted$', views.userDownvoted, name='userdownvoted'),
+    # url(r'^user/([a-zA-Z0-9_@\.]*)$', views.user, name='user'),
+    # url(r'^user/([a-zA-Z0-9_@\.]*)/upvoted$', views.userUpvoted, name='userupvoted'),
+    # url(r'^user/([a-zA-Z0-9_@\.]*)/downvoted$', views.userDownvoted, name='userdownvoted'),
     # url(r'^(.*)$',views.user,name='user'),
 
 	# alternative way
