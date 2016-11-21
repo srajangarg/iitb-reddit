@@ -5,9 +5,7 @@ from django.utils import timezone
 from subreddits.models import Subreddit
 from posts.models import TextPost, LinkPost, Comment, Vote
 from posts.views import updatePostFeatures
-
-import calendar
-import ldap
+import calendar, ldap
 from datetime import datetime, timedelta
 from math import log
 
