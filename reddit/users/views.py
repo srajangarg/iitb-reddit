@@ -101,11 +101,17 @@ def logout(request):
     return redirect('index')
 
 def user(request, username):
+    try:
+        view_user = get_user_model().objects.get(username = username)
+    except:
+        return HttpResponse("User Does Not Exist")
+    
     if request.user.is_authenticated():
         userposts = userPosts(username, request.user)
     else:
         userposts = userPosts(username)
     return render(request, "user.html", {"posts" : userposts, "username" : username})
+    
 
 def userUpvoted(request, username):
     if request.user.is_authenticated():
