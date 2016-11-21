@@ -54,7 +54,7 @@ def userUpvoted(request, username):
     if request.user.is_authenticated():
         userposts = userVotedPosts(username, 1, request.user)
     else:
-        userposts = userVotedPosts(username, -1)
+        userposts = userVotedPosts(username, 1)
     return render(request, "user.html", {"posts" : userposts, "username" : username})
 
 def userDownvoted(request, username):
