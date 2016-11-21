@@ -19,7 +19,7 @@ def index(request, subreddit_title):
         posts = feed(subreddit, request.user)
     else:
         posts = feed(subreddit)
-    return render(request, "index.html", {"subreddit" : subreddit, "posts" : posts, "num_subscribers" : num_subscribers})
+    return render(request, "subreddit.html", {"subreddit" : subreddit, "posts" : posts, "num_subscribers" : num_subscribers})
 
 
 def feed(subreddit, user = None):
