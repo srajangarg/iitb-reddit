@@ -130,10 +130,10 @@ def userDownvoted(request, username):
 #         return redirect('index')
 
 def votedByUser(post, user, vote):
-    qs = Vote.objects.filter(voted_on__id = post.id, voted_by__email = user)
+    qs = Vote.objects.filter(voted_on__id = post.id, voted_by__username = user)
     return len(qs) > 0 and int(qs[0].value) == vote
 
-def feed(ranking="", user = None):
+def allPosts(user):
 
     posts = []
 
@@ -144,6 +144,13 @@ def feed(ranking="", user = None):
     for p in TextPost.objects.extra(select = {'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
                                     select_params = ('text',)):
         posts.append(updatePostFeatures(p, user))
+
+    return posts
+
+def feed(ranking="", user = None):
+
+    posts = allPosts(user)
+
     if(ranking == "" or ranking == "hot"):
         return sorted(posts, key = lambda post : hot(post.num_votes, post.created_on),reverse=True)
     elif(ranking == "new"):
@@ -187,11 +194,11 @@ def userPosts(username, user = None):
 
     posts = []
 
-    for p in LinkPost.objects.filter(posted_by__email = username).extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
+    for p in LinkPost.objects.filter(posted_by__username = username).extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
                                     select_params=('link',)):
         posts.append(updatePostFeatures(p, user))
 
-    for p in TextPost.objects.filter(posted_by__email = username).extra(select = {'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
+    for p in TextPost.objects.filter(posted_by__username = username).extra(select = {'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
                                     select_params = ('text',)):
         posts.append(updatePostFeatures(p, user))
 
@@ -199,7 +206,7 @@ def userPosts(username, user = None):
 
 def userVotedPosts(username, vote, user = None):
 
-    posts = feed("",user)
+    posts = allPosts(user)
     posts = [p for p in posts if votedByUser(p, username, vote)]
 
     return sorted(posts, key = lambda p: p.created_on, reverse=True)

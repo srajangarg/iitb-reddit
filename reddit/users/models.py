@@ -8,6 +8,15 @@ from django.core.mail import send_mail
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from subreddits.models import Subreddit
+from django.core.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _
+
+def validate_nospace(value):
+    if value.find(' ') != -1:
+        raise ValidationError(
+            _('%(value)s contains space'),
+            params={'value': value},
+        )
 
 class RedditerManager(BaseUserManager):
 
@@ -34,7 +43,7 @@ class RedditerManager(BaseUserManager):
 class Redditer(AbstractBaseUser, PermissionsMixin):
 
     email = models.EmailField('email address', max_length=120, unique=True)
-    username = models.CharField('username', max_length=30, primary_key=True)
+    username = models.CharField('username', max_length=30, primary_key=True, validators=[validate_nospace])
 
     is_staff = models.BooleanField('staff status', default=False)
     is_active = models.BooleanField('active', default=True)

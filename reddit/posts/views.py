@@ -102,17 +102,19 @@ def newPost(request):
 
 def submitPost(request):
 
+    if request.method == 'GET':
+        return redirect('index')
     title = request.POST['title']
     subreddit_title = request.POST['subreddit']
     post_type = request.POST['type']
 
     if not request.user.is_authenticated():
-        return HttpResponse("Login to post!")
+        return HttpResponse(json.dumps({'success' : False, 'Error' : "Login to post!"}), content_type="application/json")
 
     try:
         subreddit = Subreddit.objects.get(title=subreddit_title)
     except:
-        return HttpResponse("Subreddit Does Not Exist")
+        return HttpResponse(json.dumps({'success' : False, 'Error' : "Subreddit does not exist!"}), content_type="application/json")
 
     if post_type == 'text':
         text = request.POST['text']
@@ -125,6 +127,9 @@ def submitPost(request):
     return HttpResponse("Posted")
 
 def vote(request):
+
+    if request.method == 'GET':
+        return redirect('index')
 
     if request.user.is_authenticated():
         post_id = request.POST['postId']
@@ -152,11 +157,14 @@ def vote(request):
 
 def submitComment(request):
 
+    if request.method == 'GET':
+        return redirect('index')
+    
     if request.user.is_authenticated():
         comment_on_id = request.POST['comment_on']
         reply = request.POST['reply']
         p = Post.objects.get(id = comment_on_id)
         c = Comment(posted_by = request.user, text = reply, commented_on = p)
         c.save()
-
-    return HttpResponse("Sign in to comment")
+        return HttpResponse(json.dumps({'success' : True}), content_type="application/json")
+    return HttpResponse(json.dumps({'success' : False}), content_type="application/json")

@@ -2,20 +2,24 @@ from django.http import HttpResponse
 from django.contrib.auth import get_user_model
 from django.shortcuts import render, redirect
 from .models import *
+from users.models import Subscriber, Moderator
 from posts.models import TextPost, LinkPost, Comment, Vote
 from posts.views import updatePostFeatures
 
 def index(request, subreddit_title):
+
     try:
         subreddit = Subreddit.objects.get(title=subreddit_title)
     except:
         return HttpResponse("Subreddit Does Not Exist")
 
+    num_subscribers = subscribersCount(subreddit)
+    
     if request.user.is_authenticated():
         posts = feed(subreddit, request.user)
     else:
         posts = feed(subreddit)
-    return render(request, "index.html", {"subreddit" : subreddit, "posts" : posts})
+    return render(request, "index.html", {"subreddit" : subreddit, "posts" : posts, "num_subscribers" : num_subscribers})
 
 
 def feed(subreddit, user = None):
@@ -31,3 +35,41 @@ def feed(subreddit, user = None):
         posts.append(updatePostFeatures(p, user))
 
     return sorted(posts, key = lambda p: p.num_votes, reverse=True)
+
+def subscribersCount(subreddit):
+    return Subscriber.objects.filter(subreddit=subreddit).count()
+
+# def moderators(subreddit):
+
+def addSubreddit(request):
+
+    subreddit_title = request.POST['subreddit']
+    description = request.POST['description']
+
+    if not request.user.is_authenticated() :
+        return HttpResponse("Login to add a new subreddit!")
+    
+    # some conditions for allowing to make a new subreddit
+
+    if Subreddit.objects.filter(title=subreddit_title).exists():
+        return HttpResponse("Subreddit Already Exists")
+
+    subreddit = Subreddit(title=subreddit_title, description=description)
+    subreddit.save()
+
+    mod = Moderator(redditer=request.user, subreddit=subreddit)
+    mod.save()
+
+    subs = Subscriber(redditer=request.user, subreddit=subreddit)
+    subs.save()
+
+    return HttpResponse("Added Subreddit")
+
+def subscribe(request):
+
+    subreddit_title = request.POST['subreddit']
+    if not request.user.is_authenticated() :
+        return HttpResponse("Login to subscribe!")
+
+    subs = Subscriber(redditer=request.user, subreddit=subreddit)
+    subs.save()
