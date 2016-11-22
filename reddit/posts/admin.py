@@ -4,7 +4,7 @@ from django.contrib import admin
 from .models import TextPost, LinkPost, Comment, Vote
 
 class PostAdmin(admin.ModelAdmin):
-	list_display = ('created_on', 'posted_by', 'title', 'posted_in')
+	list_display = ('created_on', 'posted_by', 'title', 'posted_in', 'expires_on')
 
 class CommentAdmin(admin.ModelAdmin):
 	list_display = ('created_on', 'commented_on', 'comment')

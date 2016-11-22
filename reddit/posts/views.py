@@ -131,7 +131,8 @@ def submitPost(request):
         link = request.POST['url']
         p = LinkPost(posted_by = request.user, posted_in=subreddit, title=title, link=link)
 
-    if request.POST.getlist('timed'):
+    if request.POST.getlist('timed[]'):
+        print request.POST['days'], request.POST['hours']
         p.expires_on = timezone.now() + timedelta(days=int(request.POST['days']),
                                                   hours=int(request.POST['hours']))
     p.save()
