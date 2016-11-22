@@ -66,6 +66,23 @@
                 }
             });
         }
+
+        function delete (obj,cid)
+        {
+            $.ajax({type: "POST",
+                url: "{% url 'deletepost' %}",
+                data: { 
+                    postId: cid,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success:function(data,status){
+                    if (data.success == true)
+                    {
+                        location.reload();
+                    }
+                }
+            });            
+        }
     </script>
 </head>
 
@@ -159,25 +176,6 @@
     <div class="col-md-8">
         <h4>Comments</h4><hr>
     </div>
-<!--     {% comment %}
-    {% for c in comments %}
-    <div class="col-md-8">  
-        <div class="col-md-1" data-toggle="tooltip" title="Login to Vote">
-            <span class="glyphicon glyphicon-arrow-up disabled" aria-hidden="true"></span>
-            <center>
-                <p class="comments">12</p>
-            </center>
-            <span class="glyphicon glyphicon-arrow-down disabled" aria-hidden="true"></span>
-        </div>
-        <div class="col-md-10">
-            <p class="comments"><a href={% url 'user' c.posted_by %}  class="comments">{{c.posted_by}}</a> {{c.created_on}}</p>
-            <p>{{c.text}}</p> 
-            <p class="comments"><a href="post.html" class="comments">reply </a></p>
-        </div>
-    {#  {% include 'comment.html' %} #}
-    </div>
-    {% endfor %}
-    {% endcomment %} -->
 
     <div>
     {% for c in comments %}
@@ -215,6 +213,9 @@
             <p>{{c.text}}</p>
             {% if not archived %}
             <p class="comments"><a class="comments" onclick="reply(this)">reply </a></p>
+            {% if ismoderator %}
+            <p class="comments"><a class="comments" onclick="delete(this,{{c.id}})">delete </a></p>
+            {% endif %}
             <div id="replybox" style="display:none">
                 <!-- <form role="form" action="{% url 'signup' %}" method="post"> -->
                 <!-- {% csrf_token %} -->

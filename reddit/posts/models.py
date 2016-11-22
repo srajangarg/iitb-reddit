@@ -54,7 +54,7 @@ class Event(Post):
 
     posted_in = models.ForeignKey(Subreddit)
     title = models.CharField('title', max_length=200)
-    time = models.DateTimeField('created_on')
+    time = models.DateTimeField('time')
     venue = models.CharField('venue', max_length=50)
     description = models.TextField('description')
 
