@@ -1,10 +1,9 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import get_user_model
 from django.shortcuts import render, redirect
 from django.db.models import Sum
 from subreddits.models import Subreddit
 from .models import *
-import json
 
 def numComments(post):
     
@@ -96,7 +95,8 @@ def newPost(request):
 
     if request.user.is_authenticated():
         subreddits = [str(s.title) for s in Subreddit.objects.all()]
-        return render(request, "newpost.html", {"subreddits" : subreddits})
+        selected_subreddit = request.GET.get('subreddit', "")
+        return render(request, "newpost.html", {"subreddits" : subreddits, "selected_subreddit" : selected_subreddit})
     else:
         return HttpResponse("Login to post!")
 
@@ -109,12 +109,12 @@ def submitPost(request):
     post_type = request.POST['type']
 
     if not request.user.is_authenticated():
-        return HttpResponse(json.dumps({'success' : False, 'Error' : "Login to post!"}), content_type="application/json")
+        return JsonResponse({'success' : False, 'Error' : "Login to post!"})
 
     try:
         subreddit = Subreddit.objects.get(title=subreddit_title)
     except:
-        return HttpResponse(json.dumps({'success' : False, 'Error' : "Subreddit does not exist!"}), content_type="application/json")
+        return JsonResponse({'success' : False, 'Error' : "Subreddit does not exist!"})
 
     if post_type == 'text':
         text = request.POST['text']
@@ -151,9 +151,9 @@ def vote(request):
             updated = action
         else:
             updated = 0
-        return HttpResponse(json.dumps({'success' : True, 'vote' : updated}), content_type="application/json")             
+        return JsonResponse({'success' : True, 'vote' : updated})            
     else:
-        return HttpResponse(json.dumps({'success' : False}), content_type="application/json")     
+        return JsonResponse({'success' : False})   
 
 def submitComment(request):
 
@@ -166,5 +166,5 @@ def submitComment(request):
         p = Post.objects.get(id = comment_on_id)
         c = Comment(posted_by = request.user, text = reply, commented_on = p)
         c.save()
-        return HttpResponse(json.dumps({'success' : True}), content_type="application/json")
-    return HttpResponse(json.dumps({'success' : False}), content_type="application/json")
+        return JsonResponse({'success' : True})
+    return JsonResponse({'success' : False})

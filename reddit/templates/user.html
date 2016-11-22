@@ -4,6 +4,7 @@
 <head>
     <link rel="stylesheet" href={% static "css/bootstrap.css" %}>
     <script type="text/javascript" src={% static "js/jquery.1.11.1.js" %}></script>
+    <script type="text/javascript" src={% static "js/async-form.js" %}></script>
     <script type="text/javascript">
         var voteStatus = [];
         var numVotes = [];
@@ -73,41 +74,7 @@
     <br>
     
      <!-- Modal (Login Pop up) -->
-    <div id="myModal" class="modal" role="dialog" tabindex='-1'>
-    <center>
-        <div class="modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="col-md-6" style="border-right: 1px solid #ddd;">
-                    <h5 style="color:#049">CREATE ACCOUNT</h5>
-                    <form role="form" action="{% url 'signup' %}" method="post">
-                    {% csrf_token %}
-                        <input type="text" class="form-control" name="name" id="name" placeholder="Enter Name">
-                        <input type="text" class="form-control" name="email" id="email" placeholder="Enter Email">
-                        <input type="text" class="form-control" name="password" id="password" placeholder="Enter Password">
-                        <input type="submit" class="btn btn-info btn-active" value="CREATE">    
-                    </form>
-                </div>
-                <div class="col-md-6">
-                    <h5 style="color:#049">LOGIN</h5>
-                    <form role="form" action="{% url 'login' %}" method="post">
-                    {% csrf_token %}
-                        <input type="text" class="form-control" name="username" id="username" placeholder="Enter Username">
-                        <input type="text" class="form-control" name="password" id="password" placeholder="Enter Password">
-                        <input type="submit" class="btn btn-info btn-active" value="LOGIN">
-                    </form>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <!-- <button type="button" class="btn btn-default" data-dismiss="modal">Close</button> -->
-            </div>
-        </div>
-        </div>
-    </center>
-    </div>
+    {% include "modal.html" %}
     <br>
     <!-- Sidebar -->
     <div class="col-md-4 pull-right">
@@ -134,7 +101,7 @@
                 {% else %}
                 <a href={{p.link}}>{{p.title}}</a>
                 {% endif %}
-                <p class="comments">Posted By: <a href={% url 'user' p.posted_by %} class="comments">{{ p.posted_by }}</a></p>
+                <p class="comments">Posted By: <a href={% url 'user' p.posted_by %} class="comments">{{p.posted_by}}</a> to <a href={% url 'subreddit' p.posted_in %} class="comments">{{p.posted_in}}</a></p>
                 <p class="comments" id="time">{{p.created_on}}</p>
                 <p class="comments"><a href={% url 'post' p.id %} class="comments">{{p.num_comments}} 
                 {% if p.num_comments < 2 %}comment{%else %}comments{%endif %}</a> points</p> 
