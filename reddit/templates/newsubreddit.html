@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load staticfiles %}
+<head>
+    <link rel="stylesheet" href={% static "css/bootstrap.css" %}>
+    <link rel="stylesheet" href={% static "css/jquery-ui.css" %}>
+    <script type="text/javascript" src={% static "js/jquery.1.11.1.js" %}></script>
+    <script type="text/javascript" src={% static "js/jquery-ui.js" %}></script>
+    <script type="text/javascript">
+    $(document).on('submit', '#newsubreddit-form', function(){
+        $.ajax({ 
+            type: $(this).attr('method'), 
+            url: this.action, 
+            data: $(this).serialize(),
+            context: this,
+            success: function(data, status) {
+                if(data.success){
+                    alert("successfully Added");
+                    window.location = {% url 'index' %};
+                }
+                else{
+                    alert(data.Error);
+                }
+            }
+        });
+        return false;
+    });
+    </script>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <div class="navbar navbar-inverse" >
+        <div class="container" style="margin-left:0px;margin-right:0px;width:98%">
+            <div class="navbar-header pull-left">
+                <a class="navbar-brand" href={% url 'index' %}><img src={% static "images/a.png" %} style="height:45px;width:70px"></a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav"></ul>
+                <ul class="nav navbar-nav pull-right">
+                    {% if user.is_authenticated %}
+                    <li><a href={% url 'user' user %}>{{ user }} </a></li>
+                    <li><a href={% url 'logout'%}>Logout</a></li>
+                    {% else %}
+                    <li><a href="" data-toggle="modal" data-target="#myModal">Login or SignUp</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="container">
+        <div class="col-md-8">  
+            <h4>CREATE A NEW SUBREDDIT</h4><br>
+            <form id="newsubreddit-form" role="form" action="{% url 'addsubredditt' %}" method="post">
+                {% csrf_token %}
+                <h5 style="color:#049">Title</h5>
+                <input type="text" class="form-control" name="title" id="title" placeholder="Enter Title">
+                <h5 style="color:#049">Description</h5>
+                <textarea type="text" class="form-control" name="description" id="description" placeholder="Subreddit Description"></textarea>
+                <input type="submit" class="btn btn-info btn-active" value="POST">  
+            </form>
+        </div>
+    </div>
+
+    <script type="text/javascript" src={% static "js/bootstrap.js" %}></script>
+</body>
+</html>

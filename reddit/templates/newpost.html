@@ -7,6 +7,25 @@
     <script type="text/javascript" src={% static "js/jquery.1.11.1.js" %}></script>
     <script type="text/javascript" src={% static "js/jquery-ui.js" %}></script>
     <script type="text/javascript">
+        $(document).on('submit', '#newpost-form', function(){
+            $.ajax({ 
+                type: $(this).attr('method'), 
+                url: this.action, 
+                data: $(this).serialize(),
+                context: this,
+                success: function(data, status) {
+                    if(data.success){
+                        alert("successfully Added");
+                        window.location = {% url 'index' %};
+                    }
+                    else{
+                        alert(data.Error);
+                    }
+                }
+            });
+            return false;
+        });
+
         function posttype()
         {
             if (document.getElementById('link').checked) 
@@ -61,7 +80,7 @@
     <div id="container">
         <div class="col-md-8">  
             <h4>CREATE A NEW POST</h4><br>
-            <form role="form" action="{% url 'submitpost' %}" method="post">
+            <form id="newpost-form" role="form" action="{% url 'submitpost' %}" method="post">
                     {% csrf_token %}
                 <h5 style="color:#049">POST TYPE</h5>
                 <label class="radio-inline">
