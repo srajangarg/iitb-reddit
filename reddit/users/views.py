@@ -33,7 +33,7 @@ def index(request, ranking = ""):
         posts = feed(ranking)
     return render(request, "index.html", {"posts" : posts})
 
-top_sort_orders = ['','hour','day','month','year','all']
+top_sort_orders = ['','day', 'week', 'month','year','all']
 
 def top(request, sort_type):
     if(sort_type in top_sort_orders):
@@ -94,7 +94,7 @@ def signup(request):
     if ldap_auth(email, ldappass):
         if get_user_model().objects.filter(email=email).exists():
             return JsonResponse({'success' : False, 'Error' : "LDAP already in use"})
-        
+
         if get_user_model().objects.filter(username=username).exists():
             return JsonResponse({'success' : False, 'Error' : "Username already taken up"})
 
@@ -117,14 +117,14 @@ def user(request, username):
         view_user = get_user_model().objects.get(username = username)
     except:
         return HttpResponse("User Does Not Exist")
-    
+
     moderated_subreddit = moderatedSubreddit(username)
     if request.user.is_authenticated():
         userposts = userPosts(username, request.user)
     else:
         userposts = userPosts(username)
     return render(request, "user.html", {"posts" : userposts, "username" : username, "moderates" : moderated_subreddit})
-    
+
 
 def userUpvoted(request, username):
     if request.user.is_authenticated():
@@ -186,10 +186,10 @@ def top_feed(sort_type,user = None):
     print(sort_type)
     time_to_compare = datetime.now() #datetime.now()
     time_to_compare = timezone.make_aware(time_to_compare, timezone.get_current_timezone())
-    if(sort_type == 'hour'):
-        time_to_compare -= timedelta(hours = 1)
-    elif(sort_type == 'day'):
+    if(sort_type == 'day'):
         time_to_compare -= timedelta(days = 1)
+    elif(sort_type == 'week'):
+        time_to_compare -= timedelta(days = 7)
     elif(sort_type == 'month'):
         time_to_compare = monthdelta(time_to_compare, -1)
     elif(sort_type == 'year'):
