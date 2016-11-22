@@ -6,6 +6,7 @@ from .models import *
 from subreddits.models import Subreddit
 from posts.models import TextPost, LinkPost, Comment, Vote
 from posts.views import updatePostFeatures
+from subreddits.views import  popularSubreddits
 import calendar, ldap
 from datetime import datetime, timedelta
 from math import log
@@ -29,9 +30,11 @@ def index(request, ranking = ""):
     # print ranking
     if request.user.is_authenticated():
         posts = feed(ranking,request.user)
+        popularsubreddits = popularSubreddits(user=request.user)
     else:
         posts = feed(ranking)
-    return render(request, "index.html", {"posts" : posts})
+        popularsubreddits = popularSubreddits()
+    return render(request, "index.html", {"posts" : posts, "popularsubreddits" : popularsubreddits})
 
 top_sort_orders = ['','day', 'week', 'month','year','all']
 
