@@ -2,7 +2,8 @@ from __future__ import unicode_literals
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-
+from datetime import timedelta
+from django.utils import timezone
 from users.models import Redditer
 from subreddits.models import Subreddit
 # Create your models here.
@@ -11,6 +12,7 @@ class Post(models.Model):
 
     created_on = models.DateTimeField('created_on', auto_now_add=True)
     posted_by = models.ForeignKey(Redditer)
+    expires_on = models.DateTimeField('expires_on', default=timezone.now() + timedelta(days=150))
 
     def __unicode__(self):
         try:
