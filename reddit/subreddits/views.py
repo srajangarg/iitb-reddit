@@ -61,7 +61,7 @@ def getEvents(subreddit, user=None):
     events = []
 
     for e in Event.objects.filter(posted_in=subreddit):
-        if timezone.now() < e.time:
+        if timezone.now() < e.time and not e.deleted:
             events.append(updatePostFeatures(e, user))
 
     return sorted(events, key=lambda e: e.time, reverse=True)
@@ -211,8 +211,8 @@ def delModerator(request):
         return JsonResponse({'success' : False, 'Error' : "Not a Mod!"})
 
     if len(moderators) == 1:
-        if(not assignNewModerator(subreddit)):
-            return JsonResponse({'success': False, 'Error': "Only Mod Admin!"})
+        if(not assignNewModerator(subreddit, request.user)):
+            return JsonResponse({'success': False, 'Error': "Only Subscriber can't leave!"})
 
     qs = Moderator.objects.get(redditer=request.user, subreddit=subreddit)
     qs.delete()
@@ -226,19 +226,20 @@ def getPostKarma(user, userPosts):
     return karma
 
 
-def assignNewModerator(subreddit):
+def assignNewModerator(subreddit, resign_user):
     subscribers = Subscriber.objects.filter(subreddit=subreddit)
     subredditPosts = feed(subreddit)
     maxKarma = 0
     newmod = None
-    for user in subscribers:
-        userPosts = [p for p in subredditPosts if p.posted_by == user.redditer]
-        karma = getPostKarma(user.redditer,userPosts)
-        if(maxKarma < karma):
-            newmod = user.redditer
-            maxKarma = karma
-        if newmod is None:
-            newmod = user.redditer
+    for subs in subscribers:
+        if subs.redditer != resign_user:
+            userPosts = [p for p in subredditPosts if p.posted_by == subs.redditer]
+            karma = getPostKarma(subs.redditer,userPosts)
+            if(maxKarma < karma):
+                newmod = subs.redditer
+                maxKarma = karma
+            if newmod is None:
+                newmod = subs.redditer
 
     if newmod is None:
         return False

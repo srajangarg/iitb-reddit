@@ -313,7 +313,7 @@ def getEvents(user=None):
     events = []
 
     for e in Event.objects.all():
-        if timezone.now() < e.time and checkSubscribed(user=user, subreddit=e.posted_in):
+        if timezone.now() < e.time and checkSubscribed(user=user, subreddit=e.posted_in) and not e.deleted:
             events.append(e)
 
     return sorted(events, key=lambda e: e.time, reverse=True)
@@ -322,7 +322,7 @@ def getEventsByUser(username, user=None):
     events = []
 
     for e in Event.objects.filter(posted_by__username=username):
-        if timezone.now() > e.time:
+        if timezone.now() > e.time and not e.deleted:
             events.append(updatePostFeatures(e, user))
 
     return sorted(events, key=lambda e: e.time, reverse=True)

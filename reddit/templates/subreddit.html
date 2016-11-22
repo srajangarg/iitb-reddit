@@ -92,8 +92,7 @@
             });
         }
 
-        function leave (obj)
-        {
+        $(document).on('submit', '#delmod-form', function(){
             $.ajax({type: "POST",
                 url: "{% url 'deletemod' %}",
                 data: {
@@ -105,9 +104,14 @@
                     {
                         location.reload();
                     }
+                    else
+                    {
+                        alert(data.Error);
+                    }
                 }
             });
-        }
+            return false;
+        });
 
         function deletep (obj,pid)
         {
@@ -194,25 +198,23 @@
         <h4>About {{ subreddit }}:</h4>
         <p>{{ subreddit.description }}</p>
         <h5><span id=subscribers>{{num_subscribers}}</span> Subscribers</h5>
-        {% if subscribed %}
-        <h5><a class="btn btn-danger btn-active" onclick="unsubscribe(this)">Unsubscribe</a></h5>
-        {% else %}
-        <h5><a class="btn btn-success btn-active" onclick="subscribe(this)">Subscribe</a></h5>
-        {% endif %}
         {% if user.is_authenticated %}
         <h5><a class="btn btn-success btn-active" href={% url 'newpost' %}?subreddit={{ subreddit }}>Submit a new post</a></h5>
             {% if assignedmod %}
-<!--                 <a class="btn btn-danger btn-active" action={% url 'deletemod' %}?subreddit={{ subreddit }}>
-                Resign as Moderator</a> -->
-            {% endif %}
-            {% if ismoderator %}
                 <h5>
-                <form id = "deletemod" role="form" action="{% url 'deletemod' %}" method="post">
+                <form id = "delmod-form" role="form" action="{% url 'deletemod' %}" method="post">
                 {% csrf_token %}
                 <input type="hidden" class="form-control" name="subreddit" id="subreddit" value="{{subreddit}}">
-                <input type="submit" class="btn btn-danger btn-active" value="Resign as Moderator">
+                <input style="margin:0" type="submit" class="btn btn-danger btn-active" value="Resign as Moderator">
                 </form></h5>
-
+            {% endif %}
+            {% if subscribed %}
+            <h5><a class="btn btn-danger btn-active" onclick="unsubscribe(this)">Unsubscribe</a></h5>
+            {% else %}
+            <h5><a class="btn btn-success btn-active" onclick="subscribe(this)">Subscribe</a></h5>
+            {% endif %}
+            
+            {% if ismoderator %}
                 <h5>Add a Moderator</h5>
                 <form id="addmod-form" role="form" action="{% url 'addmod' %}" method="post">
                     {% csrf_token %}
@@ -220,18 +222,12 @@
                     <input type="hidden" class="form-control" name="subreddit" id="subreddit" value="{{subreddit}}">
                     <input type="submit" class="btn btn-info btn-active btn-sm" value="ADD">  
                 </form>
-
-            {% else %}
-                {% if subscribed %}
-                <h5><a class="btn btn-danger btn-active" onclick="unsubscribe(this)">Unsubscribe</a></h5>
-                {% else %}
-                <h5><a class="btn btn-success btn-active" onclick="subscribe(this)">Subscribe</a></h5>
-                {% endif %}
-
             {% endif %}
+
+
         {% else %}
-        <h5><a data-toggle="modal" data-target="#myModal">Sign-in</a> to post</h5>
-        <h5><a data-toggle="modal" data-target="#myModal">Subscribe</a></h5>
+        <h5><a class="btn btn-success btn-active btn-sm" data-toggle="modal" data-target="#myModal">Sign-in</a> to post</h5>
+        <h5><a class="btn btn-success btn-active btn-sm" data-toggle="modal" data-target="#myModal">Subscribe</a></h5>
         {% endif %}
         <br><h4>Moderators</h4>
         {% for m in moderators %}
@@ -250,8 +246,6 @@
                     <p class="comments">Posted By: <a href={% url 'user' e.posted_by %} class="comments">{{e.posted_by}}</a> to <a href={% url 'subreddit' e.posted_in %} class="comments">{{e.posted_in}}</a></p>
                     <p class="comments" id="time">Time: {{e.time}}</p>
                     <p class="comments" id="time">Venue: {{e.venue}}</p>
-                    <p class="comments"><a href={% url 'post' e.id %} class="comments">{{e.num_comments}} 
-                    {% if e.num_comments < 2 %}comment{%else %}comments{%endif %}</a></p> 
                 </div>
             </div>
         </div>
