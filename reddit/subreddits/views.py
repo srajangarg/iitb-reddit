@@ -21,13 +21,15 @@ def index(request, subreddit_title):
     if request.user.is_authenticated():
         subscribed = checkSubscribed(request.user, subreddit)
         posts = feed(subreddit, request.user)
+        events = getEvents(subreddit, request.user)
     else:
         posts = feed(subreddit)
+        events = getEvents(subreddit)
         subscribed = False
     return render(request, "subreddit.html", {"subreddit" : subreddit, "posts" : posts, 
-                                              "num_subscribers" : num_subscribers, "subscribed" : subscribed, 
+                                              "num_subscribers" : num_subscribers, "subscribed" : subscribed,
                                               "moderators" : moderators, "ismoderator" : ismoderator,
-                                              "assignedmod" : assignedmod})
+                                              "assignedmod" : assignedmod, "events" : events})
 
 
 def popularSubreddits(num=5, user = None):
@@ -51,6 +53,16 @@ def feed(subreddit, user = None):
         posts.append(updatePostFeatures(p, user))
 
     return sorted(posts, key = lambda p: p.num_votes, reverse=True)
+
+def getEvents(subreddit, user=None):
+    
+    events = []
+
+    for e in Events.objects.filter(posted_in=subreddit):
+        # TODO: check not expired
+        posts.append(updatePostFeatures(e, user))
+
+    return sorted(events, key=lambda e: e.time, reverse=True)
 
 def subscribersCount(subreddit):
 
