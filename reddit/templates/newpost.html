@@ -16,7 +16,7 @@
                 success: function(data, status) {
                     if(data.success){
                         alert("successfully Added");
-                        window.location = {% url 'index' %};
+                        window.location = '{% url 'index' %}';
                     }
                     else{
                         alert(data.Error);

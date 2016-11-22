@@ -16,7 +16,7 @@
             success: function(data, status) {
                 if(data.success){
                     alert("successfully Added");
-                    window.location = {% url 'index' %};
+                    window.location = '{% url 'index' %}';
                 }
                 else{
                     alert(data.Error);
@@ -53,7 +53,7 @@
     <div id="container">
         <div class="col-md-8">  
             <h4>CREATE A NEW SUBREDDIT</h4><br>
-            <form id="newsubreddit-form" role="form" action="{% url 'addsubredditt' %}" method="post">
+            <form id="newsubreddit-form" role="form" action="{% url 'addsubreddit' %}" method="post">
                 {% csrf_token %}
                 <h5 style="color:#049">Title</h5>
                 <input type="text" class="form-control" name="title" id="title" placeholder="Enter Title">

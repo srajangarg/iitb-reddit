@@ -1,7 +1,7 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import get_user_model
 from django.shortcuts import render, redirect
-import json
+import re
 from .models import *
 from users.models import Subscriber, Moderator
 from posts.models import TextPost, LinkPost, Comment, Vote
@@ -70,8 +70,8 @@ def addSubreddit(request):
 
     if request.method == 'GET':
         return redirect('index')
-    subreddit_title = request.POST['subreddit']
-    if not validate_title(subreddit):
+    subreddit_title = request.POST['title']
+    if not validate_title(subreddit_title):
         return JsonResponse({'success' : False, 'Error' : "Subreddit Title should contain only A-Za-z0-9_"})
 
     description = request.POST['description']
