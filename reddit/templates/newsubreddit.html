@@ -8,9 +8,9 @@
     <script type="text/javascript" src={% static "js/jquery-ui.js" %}></script>
     <script type="text/javascript">
     $(document).on('submit', '#newsubreddit-form', function(){
-        $.ajax({ 
-            type: $(this).attr('method'), 
-            url: this.action, 
+        $.ajax({
+            type: $(this).attr('method'),
+            url: this.action,
             data: $(this).serialize(),
             context: this,
             success: function(data, status) {
@@ -51,15 +51,15 @@
 
     <!-- Main Content -->
     <div id="container">
-        <div class="col-md-8">  
+        <div class="col-md-8">
             <h4>CREATE A NEW SUBREDDIT</h4><br>
             <form id="newsubreddit-form" role="form" action="{% url 'addsubreddit' %}" method="post">
                 {% csrf_token %}
                 <h5 style="color:#049">Title</h5>
-                <input type="text" class="form-control" name="title" id="title" placeholder="Enter Title">
+                <input type="text" class="form-control" name="title" id="title" placeholder="Enter Title" required>
                 <h5 style="color:#049">Description</h5>
-                <textarea type="text" class="form-control" name="description" id="description" placeholder="Subreddit Description"></textarea>
-                <input type="submit" class="btn btn-info btn-active" value="POST">  
+                <textarea type="text" class="form-control" name="description" id="description" placeholder="Subreddit Description" required></textarea>
+                <input type="submit" class="btn btn-info btn-active" value="POST">
             </form>
         </div>
     </div>

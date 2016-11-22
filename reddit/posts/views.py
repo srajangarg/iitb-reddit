@@ -7,6 +7,7 @@ from subreddits.views import getModerators, updatePostFeatures, numComments
 from .models import *
 from datetime import timedelta
 from django.utils import timezone
+import opengraph
 
 # def getComments(post):
 
@@ -107,6 +108,7 @@ def submitPost(request):
             p.expires_on = timezone.now() + timedelta(days=150)
     
     elif post_type == 'link':
+
         link = request.POST['url']
         p = LinkPost(posted_by = request.user, posted_in=subreddit, title=title, link=link)
         if request.POST.getlist('timed[]'):
@@ -114,6 +116,13 @@ def submitPost(request):
                                                   hours=int(request.POST['hours']))
         else:
             p.expires_on = timezone.now() + timedelta(days=150)
+
+        try:
+            metadata = opengraph.OpenGraph(url=link)
+            p.imgurl = metadata["image"]
+            p.site = metadata["site_name"]
+        except:
+            pass
     
     elif post_type == 'event':
         time = request.POST['time']

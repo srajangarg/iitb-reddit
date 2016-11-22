@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 from math import log
 import re
 # make this date timezone aware
-epoch = timezone.make_aware(datetime(1970, 1, 1), timezone.get_current_timezone())
+epoch = timezone.make_aware(datetime(2016, 11, 23), timezone.get_current_timezone())
 
 def epoch_seconds(date):
     td = date - epoch
@@ -20,16 +20,23 @@ def epoch_seconds(date):
 
 # To calculate the score of a post for the hot ranking algorithm
 def hot(num_votes, date):
-    order = log(max(abs(num_votes), 1), 10)
+    order = log(max(abs(num_votes), 1), 2)
     sign = 1 if num_votes > 0 else -1 if num_votes < 0 else 0
-    seconds = epoch_seconds(date) - 1134028003
-    return round(  (order * sign) + (seconds / 45000),   7)
+    seconds = epoch_seconds(date)
+    return round(  sign * order + (seconds / 45000),   7)
 
+def our_rank(num_votes,posting_time,time_now):
+    td = time_now - posting_time
+    approx_seconds = td.days * 86400 + td.seconds
+    return num_votes + approx_seconds//10000
 
 def index(request, ranking = ""):
     # print ranking
     if request.user.is_authenticated():
-        posts = feed(ranking,request.user)
+        if(ranking == "subscribed"):
+            posts = subsribed_feed(request.user)
+        else:
+            posts = feed(ranking,request.user)
         popularsubreddits = popularSubreddits(user=request.user)
         events = getEvents(request.user)
     else:
@@ -100,7 +107,7 @@ def signup(request):
     if ldap_auth(email, ldappass):
         if get_user_model().objects.filter(email=email).exists():
             return JsonResponse({'success' : False, 'Error' : "LDAP already in use"})
-        
+
         username = username.strip()
         if not validate_username(username):
             return JsonResponse({'success' : False, 'Error' : "Username should contain only a-z0-9_"})
@@ -148,7 +155,7 @@ def userUpvoted(request, username):
         view_user = get_user_model().objects.get(username = username)
     except:
         return HttpResponse("User Does Not Exist")
-    
+
     moderated_subreddit = moderatedSubreddit(username)
     ismoderator = len(moderated_subreddit) > 0
     if request.user.is_authenticated():
@@ -168,7 +175,7 @@ def userDownvoted(request, username):
         view_user = get_user_model().objects.get(username = username)
     except:
         return HttpResponse("User Does Not Exist")
-    
+
     moderated_subreddit = moderatedSubreddit(username)
     ismoderator = len(moderated_subreddit) > 0
     if request.user.is_authenticated():
@@ -200,15 +207,34 @@ def allPosts(user):
 
     posts = []
 
-    for p in LinkPost.objects.extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
-                                    select_params=('link',)):
+    for p in LinkPost.objects.filter(deleted = False).extra(select={'num_votes' : 0, \
+        'num_comments' : 0, 'type' : '%s', 'vote' : 0}, select_params=('link',)):
         posts.append(updatePostFeatures(p, user))
 
-    for p in TextPost.objects.extra(select = {'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
-                                    select_params = ('text',)):
+    for p in TextPost.objects.filter(deleted = False).extra(select = {'num_votes' : 0, \
+        'num_comments' : 0, 'type' : '%s', 'vote' : 0}, select_params = ('text',)):
         posts.append(updatePostFeatures(p, user))
 
     return posts
+
+def subsribed_feed(user):
+    user_subreddits = set([s.subreddit for s in Subscriber.objects.filter(redditer=user)])
+    posts = []
+
+    for p in LinkPost.objects.filter(deleted = False).extra(select=
+        {'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0}, select_params=('link',)):
+        if(p.posted_in in user_subreddits):
+            posts.append(updatePostFeatures(p, user))
+
+    for p in TextPost.objects.filter(deleted = False).extra(select =
+        {'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},select_params = ('text',)):
+        if(p.posted_in in user_subreddits):
+            posts.append(updatePostFeatures(p, user))
+
+    time_now = datetime.now()
+    time_now = timezone.make_aware(time_now, timezone.get_current_timezone())
+
+    return sorted(posts, key = lambda p: our_rank(p.num_votes, p.created_on,time_now), reverse=True)
 
 def feed(ranking="", user = None):
 
@@ -243,12 +269,13 @@ def top_feed(sort_type,user = None):
 
     posts = []
 
-    for p in LinkPost.objects.filter(created_on__gte=time_to_compare).\
+    for p in LinkPost.objects.filter(created_on__gte=time_to_compare, deleted = False).\
         extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
                                     select_params=('link',)):
         posts.append(updatePostFeatures(p, user))
 
-    for p in TextPost.objects.filter(created_on__gte=time_to_compare).extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
+    for p in TextPost.objects.filter(created_on__gte=time_to_compare, deleted = False).\
+        extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
                                     select_params = ('text',)):
         posts.append(updatePostFeatures(p, user))
     return sorted(posts, key=lambda p: p.num_votes, reverse=True)
@@ -257,12 +284,12 @@ def userPosts(username, user = None):
 
     posts = []
 
-    for p in LinkPost.objects.filter(posted_by__username=username).extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
-                                    select_params=('link',)):
+    for p in LinkPost.objects.filter(posted_by__username=username,deleted = False).\
+        extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},select_params=('link',)):
         posts.append(updatePostFeatures(p, user))
 
-    for p in TextPost.objects.filter(posted_by__username=username).extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
-                                    select_params = ('text',)):
+    for p in TextPost.objects.filter(posted_by__username=username,deleted = False).\
+        extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},select_params = ('text',)):
         posts.append(updatePostFeatures(p, user))
 
     return sorted(posts, key = lambda p: p.created_on, reverse=True)

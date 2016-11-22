@@ -18,7 +18,7 @@
         function vote (obj, id, type) {
             $.ajax({type: "POST",
                 url: "{% url 'vote' %}",
-                data: { 
+                data: {
                     action: type,
                     postId: id,
                     status: voteStatus[id],
@@ -55,7 +55,7 @@
         {
             $.ajax({type: "POST",
                 url: "{% url 'submitcomment' %}",
-                data: { 
+                data: {
                     comment_on: cid,
                     reply: obj.previousElementSibling.value,
                     csrfmiddlewaretoken: '{{ csrf_token }}'
@@ -115,7 +115,7 @@
     <!-- Modal (Login Pop up) -->
     {% include "modal.html" %}
     <br>
-    
+
     <!-- Sidebar -->
     <div class="col-md-4 pull-right">
         <!-- <h5>Related Subreddits</h5> -->
@@ -134,10 +134,15 @@
             </center>
             <span id="downvote" onclick="vote(this, {{post.id}}, -1)" {% if user.is_authenticated %} class="glyphicon glyphicon-arrow-down" {% else %} class="glyphicon glyphicon-arrow-down disabled" {% endif %} {% if post.vote == -1 %} style="color:red"  {% else %} style="color:silver" {% endif %} aria-hidden="true"></span>
         </div>
-        <div class="col-md-2">
-            <img src={% static "images/a.png" %} style="width:60px;height:60px;">
+
+        <div class="col-md-3">
+            {% if post.type == 'text' %}
+            <img src={% static "images/a.png" %} style="width:80px">
+            {% else %}
+            <img src={{ post.imgurl }} style="width:80px">
+            {% endif %}
         </div>
-        <div class="col-md-9">
+        <div class="col-md-8">
             {% if post.type == 'text' or post.type == 'event' %}
             {{post.title}} 
             {% else %}
@@ -149,8 +154,8 @@
 
             <p class="comments">Posted By: <a href={% url 'user' post.posted_by %} class="comments">{{post.posted_by}}</a> to <a href={% url 'subreddit' post.posted_in %} class="comments">{{post.posted_in}}</a></p>
             <p class="comments" id="time">{{post.created_on}}</p>
-            <p class="comments">{{post.num_comments}} 
-                {% if post.num_comments < 2 %}comment{%else %}comments{%endif %}</p> 
+            <p class="comments">{{post.num_comments}}
+                {% if post.num_comments < 2 %}comment{%else %}comments{%endif %}</p>
         </div>
         <br>
         <div class="col-md-8 col-md-offset-2">
@@ -170,9 +175,9 @@
                 <textarea type="text" class="form-control" name="reply" id="reply" {% if  archived %}readonly{% endif %} placeholder={% if  archived %}"Post has been Archived"{% else %}"Write a Comment"{% endif %}></textarea>
                 {% if not archived %}
                 {% if user.is_authenticated %}
-                <input type="submit" class="btn btn-info btn-active btn-xs" onclick="postreply(this, {{post.id}})" value="POST">  
+                <input type="submit" class="btn btn-info btn-active btn-xs" onclick="postreply(this, {{post.id}})" value="POST">
                 {% else %}
-                <input class="btn btn-info btn-active btn-xs" data-toggle="modal" data-target="#myModal" value="Login to Comment"> 
+                <input class="btn btn-info btn-active btn-xs" data-toggle="modal" data-target="#myModal" value="Login to Comment">
                 {% endif %}
                 {% endif %}
             <!-- </form><br> -->
@@ -187,26 +192,26 @@
     <div>
     {% for c in comments %}
     {% if c.child == 1 %}
-    <div class="col-md-11 col-md-offset-1" style="border-left:1px dotted #000"> 
-    {% elif c.child == 0 and c.depth == 0 %}    
+    <div class="col-md-11 col-md-offset-1" style="border-left:1px dotted #000">
+    {% elif c.child == 0 and c.depth == 0 %}
     </div>
     <div class="col-md-8">
-    {% elif c.child == 0 %}    
+    {% elif c.child == 0 %}
     </div>
     <div class="col-md-11 col-md-offset-1" style="border-left:1px dotted #000">
     {% else %}
     {% for i in c.childrange %}
     </div>
     {% endfor %}
-    {% if c.depth == 0 %}    
+    {% if c.depth == 0 %}
     </div>
     <div class="col-md-8">
-    {% else %}    
+    {% else %}
     </div>
     <div class="col-md-11 col-md-offset-1" style="border-left:1px dotted #000">
     {% endif %}
     {% endif %}
-        <!-- TODO --> 
+        <!-- TODO -->
         {# <!-- {% if user == "null" %} --> #}
         <div class="col-md-1" data-toggle="tooltip" {% if user.is_authenticated %} title="Click to Vote" {% else %} title="Login to Vote" {% endif %}>
              <span id="upvote" onclick="vote(this, {{c.id}}, 1)" {% if user.is_authenticated %} class="glyphicon glyphicon-arrow-up" {% else %} class="glyphicon glyphicon-arrow-up disabled" {% endif %} {% if c.vote == 1 %} style="color:green" {% else %} style="color:silver"{% endif %} aria-hidden="true"></span>
@@ -227,8 +232,8 @@
                 <textarea type="text" class="form-control" name="reply" id="reply" placeholder="Post a reply"></textarea>
                 {% if user.is_authenticated%}
                 <input type="submit" class="btn btn-info btn-active btn-xs" onclick="postreply(this, {{c.id}})" value="POST"> {% else %}
-                <input class="btn btn-info btn-active btn-xs" data-toggle="modal" data-target="#myModal" value="Login to Comment"> 
-                {% endif %}   
+                <input class="btn btn-info btn-active btn-xs" data-toggle="modal" data-target="#myModal" value="Login to Comment">
+                {% endif %}
                 <!-- </form><br> -->
             </div>
             {% if ismoderator or user.username == c.posted_by.username %}
@@ -240,7 +245,7 @@
         </div>
     {% endfor %}
     </div>
-    
+
     <script type="text/javascript" src={% static "js/jquery.1.11.1.js" %}></script>
     <script type="text/javascript" src={% static "js/bootstrap.js" %}></script>
 </body>
