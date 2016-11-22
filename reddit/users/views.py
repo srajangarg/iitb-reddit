@@ -9,7 +9,6 @@ from posts.views import updatePostFeatures
 import calendar, ldap
 from datetime import datetime, timedelta
 from math import log
-import json
 
 # make this date timezone aware
 epoch = timezone.make_aware(datetime(1970, 1, 1), timezone.get_current_timezone())

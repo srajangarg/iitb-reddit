@@ -74,7 +74,7 @@ def addSubreddit(request):
     # some conditions for allowing to make a new subreddit
 
     if Subreddit.objects.filter(title=subreddit_title).exists():
-        return HttpResponse(json.dumps({'success' : False, 'Error' : "Subreddit Already Exists"}), content_type="application/json")
+        return JsonResponse({'success' : False, 'Error' : "Subreddit Already Exists"})
 
     subreddit = Subreddit(title=subreddit_title, description=description)
     subreddit.save()
@@ -82,7 +82,7 @@ def addSubreddit(request):
     mod = Moderator(redditer=request.user, subreddit=subreddit)
     mod.save()
 
-    return HttpResponse(json.dumps({'success' : True, 'Message' : "Added Subreddit"}), content_type="application/json")
+    return JsonResponse({'success' : True, 'Message' : "Added Subreddit"})
 
 def subscribe(request):
 
@@ -97,7 +97,7 @@ def subscribe(request):
     try:
         subreddit = Subreddit.objects.get(title=subreddit_title)
     except:
-        return HttpResponse(json.dumps({'success' : False, 'Error' : "Subreddit Does not exist"}), content_type="application/json")
+        return JsonResponse({'success' : False, 'Error' : "Subreddit Does not exist"})
 
     qs = Subscriber.objects.filter(redditer = request.user, subreddit=subreddit)
     
@@ -105,7 +105,7 @@ def subscribe(request):
         subs = Subscriber(redditer=request.user, subreddit=subreddit)
         subs.save()
 
-    return HttpResponse(json.dumps({'success' : True}), content_type="application/json")
+    return JsonResponse({'success' : True})
 
 
 def unsubscribe(request):
@@ -114,19 +114,19 @@ def unsubscribe(request):
         return redirect('index')
     subreddit_title = request.POST['subreddit']
     if not request.user.is_authenticated():
-        return HttpResponse(json.dumps({'success' : False, 'Error' : "Login to subscribe!"}), content_type="application/json")
+        return JsonResponse({'success' : False, 'Error' : "Login to subscribe!"})
 
     try:
         subreddit = Subreddit.objects.get(title=subreddit_title)
     except:
-        return HttpResponse(json.dumps({'success' : False, 'Error' : "Subreddit Does not exist"}), content_type="application/json")
+        return JsonResponse({'success' : False, 'Error' : "Subreddit Does not exist"})
     
     qs = Subscriber.objects.filter(redditer = request.user, subreddit=subreddit)
     
     if qs.count() > 0:
         qs.delete()
 
-    return HttpResponse(json.dumps({'success' : True}), content_type="application/json")
+    return JsonResponse({'success' : True})
 
 def addModerator(request):
     if request.method == 'GET':
@@ -138,26 +138,26 @@ def addModerator(request):
     try:
         newmod = get_user_model().objects.filter(username=newmod_username)
     except:
-        return HttpResponse(json.dumps({'success' : False, 'Error' : "User does not exist"}), content_type="application/json")
+        return JsonResponse({'success' : False, 'Error' : "User does not exist"})
         
     try:
         subreddit = Subreddit.objects.get(title=subreddit_title)
     except:
-        return HttpResponse(json.dumps({'success' : False, 'Error' : "Subreddit Does not exist"}), content_type="application/json")
+        return JsonResponse({'success' : False, 'Error' : "Subreddit Does not exist"})
     
     moderators = getModerators(subreddit)
     
     if not request.user.is_authenticated():
-        return HttpResponse(json.dumps({'success' : False, 'Error' : "Login to add!"}), content_type="application/json")
+        return JsonResponse({'success' : False, 'Error' : "Login to add!"})
     elif not request.user in moderators:
-        return HttpResponse(json.dumps({'success' : False, 'Error' : "Only current mods can add a new mod!"}), content_type="application/json")
+        return JsonResponse({'success' : False, 'Error' : "Only current mods can add a new mod!"})
     elif newmod in moderators:
-        return HttpResponse(json.dumps({'success' : False, 'Error' : "Already a mod!"}), content_type="application/json")
+        return JsonResponse({'success' : False, 'Error' : "Already a mod!"})
 
     m = Moderator(redditer=newmod, subreddit=subreddit)
     m.save()
 
-    return HttpResponse(json.dumps({'success' : True}), content_type="application/json")
+    return JsonResponse({'success' : True})
 
 def delModerator(request):
     if request.method == 'GET':
@@ -168,14 +168,14 @@ def delModerator(request):
     try:
         subreddit = Subreddit.objects.get(title=subreddit_title)
     except:
-        return HttpResponse(json.dumps({'success' : False, 'Error' : "Subreddit Does not exist"}), content_type="application/json")
+        return JsonResponse({'success' : False, 'Error' : "Subreddit Does not exist"})
     
     moderators = getModerators(subreddit)
     
     if not request.user.is_authenticated():
-        return HttpResponse(json.dumps({'success' : False, 'Error' : "Login to add!"}), content_type="application/json")
+        return JsonResponse({'success' : False, 'Error' : "Login to add!"})
     elif not request.user in moderators:
-        return HttpResponse(json.dumps({'success' : False, 'Error' : "Not a Mod!"}), content_type="application/json")
+        return JsonResponse({'success' : False, 'Error' : "Not a Mod!"})
 
     qs = Moderator.objecs.get(redditer=request.user, subreddit=subreddit)
     qs.delete()
@@ -183,7 +183,7 @@ def delModerator(request):
     if len(moderators) == 1:
         assignNewModerator(subreddit)
 
-    return HttpResponse(json.dumps({'success' : True}), content_type="application/json")
+    return JsonResponse({'success' : True})
 
 def assignNewModerator(subreddit):
 # TODO by garg
