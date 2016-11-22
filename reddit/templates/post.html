@@ -80,7 +80,7 @@
                 success:function(data,status){
                     if (data.success == true)
                     {
-                        alert("Comment Deleted");
+                        alert("Successfully Deleted");
                         location.reload();
                     }
                 }
@@ -143,6 +143,10 @@
             {% else %}
             <a href={{post.link}}>{{post.title}}</a>
             {% endif %}
+            {% if ismoderator and not post.deleted %}
+            <p class="comments"><a class="btn btn-danger btn-active btn-sm pull-right" onclick="deletep(this,{{post.id}})">delete </a></p>
+            {% endif %}
+
             <p class="comments">Posted By: <a href={% url 'user' post.posted_by %} class="comments">{{post.posted_by}}</a> to <a href={% url 'subreddit' post.posted_in %} class="comments">{{post.posted_in}}</a></p>
             <p class="comments" id="time">{{post.created_on}}</p>
             <p class="comments">{{post.num_comments}} 
