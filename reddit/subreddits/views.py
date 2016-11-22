@@ -42,11 +42,11 @@ def feed(subreddit, user = None):
 
     posts = []
 
-    for p in LinkPost.objects.filter(posted_in = subreddit).extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
+    for p in LinkPost.objects.filter(posted_in = subreddit, deleted=False).extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
                                     select_params=('link',)):
         posts.append(updatePostFeatures(p, user))
 
-    for p in TextPost.objects.filter(posted_in = subreddit).extra(select = {'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
+    for p in TextPost.objects.filter(posted_in = subreddit, deleted=False).extra(select = {'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
                                     select_params = ('text',)):
         posts.append(updatePostFeatures(p, user))
 
@@ -69,6 +69,7 @@ def checkSubscribed(user, subreddit):
         return True
     else:
         return False
+
 
 def addSubredditForm(request):
     if request.user.is_authenticated():
