@@ -12,7 +12,7 @@ class Post(models.Model):
 
     created_on = models.DateTimeField('created_on', auto_now_add=True)
     posted_by = models.ForeignKey(Redditer)
-    expires_on = models.DateTimeField('expires_on', default=timezone.now() + timedelta(days=150))
+    expires_on = models.DateTimeField('expires_on')
     deleted = models.BooleanField('deleted', default=False)
 
     def __unicode__(self):
@@ -54,9 +54,12 @@ class Event(Post):
 
     posted_in = models.ForeignKey(Subreddit)
     title = models.CharField('title', max_length=200)
-    time = models.DateTimeField('created_on')
+    time = models.DateTimeField('time')
     venue = models.CharField('venue', max_length=50)
     description = models.TextField('description')
+
+    def __unicode__(self):
+        return self.title
 
 
 class Vote(models.Model):

@@ -94,6 +94,7 @@ def post(request, post_id):
     if request.user.is_authenticated(): 
         updatePostFeatures(p,request.user)
         comments = getComments(p, 0, request.user)
+        ismoderator = request.user in getModerators(p.posted_in) or request.user.is_staff
     else:
         updatePostFeatures(p)
         comments = getComments(p, 0)
@@ -101,7 +102,7 @@ def post(request, post_id):
     archived = False
     if (timezone.now() > p.expires_on):
         archived = True
-    return render(request, "post.html", {"post" : p, "comments" : comments, "archived" : archived})
+    return render(request, "post.html", {"post" : p, "comments" : comments, "archived" : archived, "ismoderator" : ismoderator})
 
 def newPost(request):
 
@@ -142,10 +143,12 @@ def submitPost(request):
         p = Event(posted_by = request.user, posted_in=subreddit, title=title, time=time, venue=venue, description=description)
         p.expires_on = time
 
-    if request.POST.getlist('timed[]') and (post_type == 'text' or post_type == 'link'):
-        print request.POST['days'], request.POST['hours']
-        p.expires_on = timezone.now() + timedelta(days=int(request.POST['days']), 
-                                                  hours=int(request.POST['hours']))  
+    if post_type == 'text' or post_type == 'link':
+        if request.POST.getlist('timed[]'):
+            p.expires_on = timezone.now() + timedelta(days=int(request.POST['days']), 
+                                                  hours=int(request.POST['hours']))
+        else:
+            p.expires_on = timezone.now() + timedelta(days=150)
     p.save()
     return JsonResponse({'success' : True, 'Message' : "Posted", 'postID' : p.id})
 

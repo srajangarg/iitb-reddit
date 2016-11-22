@@ -7,7 +7,7 @@ class PostAdmin(admin.ModelAdmin):
 	list_display = ('created_on', 'posted_by', 'title', 'posted_in', 'expires_on', 'deleted')
 
 class EventAdmin(admin.ModelAdmin):
-	list_display = ('created_on', 'posted_by', 'title', 'posted_in', 'expires_on', 'deleted')
+	list_display = ('created_on', 'posted_by', 'title', 'posted_in', 'time', 'venue', 'expires_on', 'deleted')
 
 class CommentAdmin(admin.ModelAdmin):
 	list_display = ('created_on', 'commented_on', 'comment')
