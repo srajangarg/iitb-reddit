@@ -4,6 +4,7 @@ from . import views
 
 urlpatterns = [
     url(r'^submitpost$', views.submitPost, name='submitpost'),
+    url(r'^deletepost$', views.deletePost, name='deletepost'),
     url(r'^submitcomment$', views.submitComment, name='submitcomment'),
     url(r'^submit$', views.newPost, name='newpost'),
     url(r'^vote$', views.vote, name='vote'),
