@@ -33,7 +33,7 @@ def index(request, ranking = ""):
         posts = feed(ranking)
     return render(request, "index.html", {"posts" : posts})
 
-top_sort_orders = ['','hour','day','month','year','all']
+top_sort_orders = ['','day', 'week', 'month','year','all']
 
 def top(request, sort_type):
     if(sort_type in top_sort_orders):
@@ -98,6 +98,7 @@ def signup(request):
         username = username.strip()
         if not validate_username(username):
             return JsonResponse({'success' : False, 'Error' : "Username should contain only a-z0-9_"})
+
         if get_user_model().objects.filter(username=username).exists():
             return JsonResponse({'success' : False, 'Error' : "Username already taken up"})
 
@@ -120,7 +121,7 @@ def user(request, username):
         view_user = get_user_model().objects.get(username = username)
     except:
         return HttpResponse("User Does Not Exist")
-    
+
     moderated_subreddit = moderatedSubreddit(username)
     ismoderator = len(moderated_subreddit) > 0
     if request.user.is_authenticated():
@@ -128,10 +129,10 @@ def user(request, username):
         mypage = request.user == view_user
     else:
         userposts = userPosts(username)
-    return render(request, "user.html", {"posts" : userposts, "username" : username, 
-                                         "moderates" : moderated_subreddit, "mypage" : mypage, 
+    return render(request, "user.html", {"posts" : userposts, "username" : username,
+                                         "moderates" : moderated_subreddit, "mypage" : mypage,
                                          "ismoderator" : ismoderator})
-    
+
 
 def userUpvoted(request, username):
     try:
@@ -146,8 +147,8 @@ def userUpvoted(request, username):
         mypage = request.user == view_user
     else:
         userposts = userVotedPosts(username, 1)
-    return render(request, "user.html", {"posts" : userposts, "username" : username, 
-                                         "moderates" : moderated_subreddit, "mypage" : mypage, 
+    return render(request, "user.html", {"posts" : userposts, "username" : username,
+                                         "moderates" : moderated_subreddit, "mypage" : mypage,
                                          "ismoderator" : ismoderator})
 
 def userDownvoted(request, username):
@@ -163,8 +164,8 @@ def userDownvoted(request, username):
         mypage = request.user == view_user
     else:
         userposts = userVotedPosts(username, -1)
-    return render(request, "user.html", {"posts" : userposts, "username" : username, 
-                                         "moderates" : moderated_subreddit, "mypage" : mypage, 
+    return render(request, "user.html", {"posts" : userposts, "username" : username,
+                                         "moderates" : moderated_subreddit, "mypage" : mypage,
                                          "ismoderator" : ismoderator})
 
 # def myaccount(request):
@@ -213,10 +214,10 @@ def top_feed(sort_type,user = None):
     print(sort_type)
     time_to_compare = datetime.now() #datetime.now()
     time_to_compare = timezone.make_aware(time_to_compare, timezone.get_current_timezone())
-    if(sort_type == 'hour'):
-        time_to_compare -= timedelta(hours = 1)
-    elif(sort_type == 'day'):
+    if(sort_type == 'day'):
         time_to_compare -= timedelta(days = 1)
+    elif(sort_type == 'week'):
+        time_to_compare -= timedelta(days = 7)
     elif(sort_type == 'month'):
         time_to_compare = monthdelta(time_to_compare, -1)
     elif(sort_type == 'year'):

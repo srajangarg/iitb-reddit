@@ -124,7 +124,7 @@ def submitPost(request):
         link = request.POST['url']
         p = LinkPost(posted_by = request.user, posted_in=subreddit, title=title, link=link)
         p.save()
-    return HttpResponse({'success' : True})
+    return JsonResponse({'success' : True, 'Message' : "Posted"})
 
 def vote(request):
 
