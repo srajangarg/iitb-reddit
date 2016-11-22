@@ -15,8 +15,7 @@
             context: this,
             success: function(data, status) {
                 if(data.success){
-                    alert("successfully Added");
-                    window.location = '{% url 'index' %}';
+                    window.location = "/subreddits/" + data.title;
                 }
                 else{
                     alert(data.Error);

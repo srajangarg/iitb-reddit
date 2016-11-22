@@ -52,13 +52,17 @@ def top(request, sort_type):
     if(sort_type in top_sort_orders):
         if(request.user.is_authenticated):
             posts = top_feed(sort_type,request.user)
+            popularsubreddits = popularSubreddits(user=request.user)
+            events = getEvents(request.user)
         else:
             posts = top_feed(sort_type)
+            popularsubreddits = popularSubreddits()
+            events = getEvents()
 
-        return render(request,"index.html",{"posts" : posts})
+        return render(request, "index.html", {"posts" : posts, "popularsubreddits" : popularsubreddits,
+                                          "events" : events})
     else:
-        # TODO : redirect to some page saying lost!
-        print("lost")
+        redirect('index')
 
 def login(request):
 
@@ -316,16 +320,16 @@ def getEvents(user=None):
         if timezone.now() < e.time and checkSubscribed(user=user, subreddit=e.posted_in) and not e.deleted:
             events.append(e)
 
-    return sorted(events, key=lambda e: e.time, reverse=True)
+    return sorted(events, key=lambda e: e.time)
 
 def getEventsByUser(username, user=None):
     events = []
 
     for e in Event.objects.filter(posted_by__username=username):
-        if timezone.now() > e.time and not e.deleted:
-            events.append(updatePostFeatures(e, user))
+        if timezone.now() < e.time and not e.deleted:
+            events.append(e)
 
-    return sorted(events, key=lambda e: e.time, reverse=True)
+    return sorted(events, key=lambda e: e.time)
 
 def validate_username(username):
     return re.compile('[a-z0-9_]+$').match(username)

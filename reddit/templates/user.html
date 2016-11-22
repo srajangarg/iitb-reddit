@@ -88,7 +88,24 @@
         {% if mypage %}
         <h5><a class="btn btn-success btn-active" href={% url 'addsubredditform' %}>Create a Subreddit</a></h5>
         {% endif %}
+        <br><h4>Upcoming Events by {{ username }}</h4>
+        {% for e in events %}
+        <div class="col-md-12">  
+            <div class="row">
+                <div class="col-md-2">
+                    <img src={% static "images/a.png" %} style="width:60px;height:60px;">
+                </div>
+                <div class="col-md-9 col-md-offset-1">
+                    <a href={% url 'post' e.id %}>{{e.title}}</a> 
+                    <p class="comments">Posted By: <a href={% url 'user' e.posted_by %} class="comments">{{e.posted_by}}</a> to <a href={% url 'subreddit' e.posted_in %} class="comments">{{e.posted_in}}</a></p>
+                    <p class="comments" id="time">Time: {{e.time}}</p>
+                    <p class="comments" id="time">Venue: {{e.venue}}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor%}
     </div>
+
 
     <!-- Main Content -->
     {% for p in posts %}

@@ -64,7 +64,7 @@ def getEvents(subreddit, user=None):
         if timezone.now() < e.time and not e.deleted:
             events.append(updatePostFeatures(e, user))
 
-    return sorted(events, key=lambda e: e.time, reverse=True)
+    return sorted(events, key=lambda e: e.time)
 
 def subscribersCount(subreddit):
 
@@ -115,7 +115,7 @@ def addSubreddit(request):
     mod = Moderator(redditer=request.user, subreddit=subreddit)
     mod.save()
 
-    return JsonResponse({'success' : True, 'Message' : "Added Subreddit"})
+    return JsonResponse({'success' : True, 'Message' : "Added Subreddit", "title" : subreddit.title})
 
 def subscribe(request):
 
