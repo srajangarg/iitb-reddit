@@ -3,36 +3,11 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import render, redirect
 from django.db.models import Sum
 from subreddits.models import Subreddit
+from subreddits.views import getModerators, updatePostFeatures, numComments
 from .models import *
 from datetime import timedelta
 from django.utils import timezone
 import opengraph
-
-def numComments(post):
-    
-    num = 0
-    qs = Comment.objects.filter(commented_on = post)
-    num += qs.count()
-    for c in qs:
-        num += numComments(c)
-    return num
-
-def updatePostFeatures(post, user=None):
-
-    post.num_votes = Vote.objects.filter(voted_on__id = post.id).aggregate(votes = Sum('value')).get('votes')
-    
-    post.num_comments = numComments(post)
-
-    if post.num_votes == None:
-        post.num_votes = 0
-
-    if user is not None:
-        
-        qs = Vote.objects.filter(voted_on__id = post.id, voted_by = user)
-        if len(qs) > 0:
-            post.vote = qs[0].value
-
-    return post
 
 # def getComments(post):
 
@@ -61,14 +36,7 @@ def getComments(post, depth, user=None):
         d = c.depth
         if c.child < 0:
             c.childrange = range(-c.child)
-    return comments 
-
-
-# def printComments(comments, string = ""):
-
-#     for c in comments:
-#         print string + str(c.id)
-#         printComments(c.childs, "    ")
+    return comments
 
 def post(request, post_id):
 
@@ -79,17 +47,23 @@ def post(request, post_id):
         p = qs.get()
     else:
         qs = LinkPost.objects.filter(id = post_id)
-        print qs.count()
         if qs.count() == 1:
             qs = qs.extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0}, 
                                     select_params=('link',))
             p = qs.get()
         else:
-            return HttpResponse("No such post!")
+            qs = Event.objects.filter(id = post_id)
+            if qs.count() == 1:
+                qs = qs.extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0}, 
+                                        select_params=('event',))
+                p = qs.get()
+            else:
+                return HttpResponse("No such post!")
 
     if request.user.is_authenticated(): 
         updatePostFeatures(p,request.user)
         comments = getComments(p, 0, request.user)
+        ismoderator = request.user in getModerators(p.posted_in) or request.user.is_staff or p.posted_by == request.user
     else:
         updatePostFeatures(p)
         comments = getComments(p, 0)
@@ -97,7 +71,7 @@ def post(request, post_id):
     archived = False
     if (timezone.now() > p.expires_on):
         archived = True
-    return render(request, "post.html", {"post" : p, "comments" : comments, "archived" : archived})
+    return render(request, "post.html", {"post" : p, "comments" : comments, "archived" : archived, "ismoderator" : ismoderator})
 
 def newPost(request):
 
@@ -127,11 +101,21 @@ def submitPost(request):
     if post_type == 'text':
         text = request.POST['text']
         p = TextPost(posted_by = request.user, posted_in=subreddit, title=title, text=text)
-
-    else:
+        if request.POST.getlist('timed[]'):
+            p.expires_on = timezone.now() + timedelta(days=int(request.POST['days']), 
+                                                  hours=int(request.POST['hours']))
+        else:
+            p.expires_on = timezone.now() + timedelta(days=150)
+    
+    elif post_type == 'link':
 
         link = request.POST['url']
         p = LinkPost(posted_by = request.user, posted_in=subreddit, title=title, link=link)
+        if request.POST.getlist('timed[]'):
+            p.expires_on = timezone.now() + timedelta(days=int(request.POST['days']), 
+                                                  hours=int(request.POST['hours']))
+        else:
+            p.expires_on = timezone.now() + timedelta(days=150)
 
         try:
             metadata = opengraph.OpenGraph(url=link)
@@ -139,13 +123,16 @@ def submitPost(request):
             p.site = metadata["site_name"]
         except:
             pass
+    
+    elif post_type == 'event':
+        time = request.POST['time']
+        venue = request.POST['venue']
+        description = request.POST['description']
+        p = Event(posted_by = request.user, posted_in=subreddit, title=title, time=time, venue=venue, description=description)
+        p.expires_on = time
 
-    if request.POST.getlist('timed[]'):
-        print request.POST['days'], request.POST['hours']
-        p.expires_on = timezone.now() + timedelta(days=int(request.POST['days']),
-                                                  hours=int(request.POST['hours']))
     p.save()
-    return JsonResponse({'success' : True, 'Message' : "Posted"})
+    return JsonResponse({'success' : True, 'Message' : "Posted", 'postID' : p.id})
 
 def vote(request):
 
@@ -184,6 +171,9 @@ def submitComment(request):
     if request.user.is_authenticated():
         comment_on_id = request.POST['comment_on']
         reply = request.POST['reply']
+        if not Post.objects.filter(id=comment_on_id).exists():
+            return JsonResponse({'success' : False, 'Error' : "No such post exists"})
+            
         p = Post.objects.get(id = comment_on_id)
         c = Comment(posted_by = request.user, text = reply, commented_on = p)
         c.save()
@@ -191,4 +181,38 @@ def submitComment(request):
     return JsonResponse({'success' : False, 'Error' : "Login to reply"})
 
 def deletePost(request):
-    return JsonResponse({'success' : False})
+
+    if request.method == 'GET':
+        return redirect('index')
+    
+    if request.user.is_authenticated():
+        postId = request.POST['postId']
+        if not Post.objects.filter(id=postId).exists():
+            return JsonResponse({'success' : False, 'Error' : "No such post exists"})
+        
+        qs = Post.objects.filter(id=postId)
+        if qs[0].deleted:
+            return JsonResponse({'success' : False, 'Error' : "Already deleted"})
+            
+        
+        qs2 = TextPost.objects.filter(id=postId)
+        if qs2.exists():
+            qs2.update(title="[deleted]", text="[deleted]")
+            qs2.update(expires_on=timezone.now(), deleted=True)
+
+        qs2 = LinkPost.objects.filter(id=postId)
+        if qs2.exists():
+            qs2.update(title="[deleted]", link="")
+            qs2.update(expires_on=timezone.now(), deleted=True)
+
+        qs2 = Event.objects.filter(id=postId)
+        if qs2.exists():
+            qs2.update(title=qs[0].title + " [cancelled]")
+            qs2.update(expires_on=timezone.now(), deleted=True)
+
+        qs2 = Comment.objects.filter(id=postId)
+        if qs2.exists():
+            qs2.update(text="[deleted]", deleted=True)
+
+        return JsonResponse({'success' : True})
+    return JsonResponse({'success' : False, 'Error' : "Login to delete"})

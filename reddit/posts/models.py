@@ -12,7 +12,6 @@ class Post(models.Model):
 
     created_on = models.DateTimeField('created_on', auto_now_add=True)
     posted_by = models.ForeignKey(Redditer)
-    expires_on = models.DateTimeField('expires_on', default=timezone.now() + timedelta(days=150))
     deleted = models.BooleanField('deleted', default=False)
 
     def __unicode__(self):
@@ -29,6 +28,7 @@ class TextPost(Post):
     posted_in = models.ForeignKey(Subreddit)
     title = models.CharField('title', max_length=200)
     text = models.TextField('text')
+    expires_on = models.DateTimeField('expires_on')
     site = models.CharField('site', max_length=50, default="self.Reddit")
 
     def __unicode__(self):
@@ -39,9 +39,10 @@ class LinkPost(Post):
     posted_in = models.ForeignKey(Subreddit)
     title = models.CharField('title', max_length=200)
     link = models.URLField('link', max_length=200)
+    expires_on = models.DateTimeField('expires_on')
     imgurl = models.URLField('imgurl', max_length=200, default = 'static "images/a.png"')
     site = models.CharField('site', max_length=50, default="Web")
-
+    
     def __unicode__(self):
         return self.title
 
@@ -52,6 +53,19 @@ class Comment(Post):
 
     def __unicode__(self):
         return self.text[:30]
+
+class Event(Post):
+
+    expires_on = models.DateTimeField('expires_on')
+    posted_in = models.ForeignKey(Subreddit)
+    title = models.CharField('title', max_length=200)
+    time = models.DateTimeField('time')
+    venue = models.CharField('venue', max_length=50)
+    description = models.TextField('description')
+
+    def __unicode__(self):
+        return self.title
+
 
 class Vote(models.Model):
     VOTE_CHOICES = (

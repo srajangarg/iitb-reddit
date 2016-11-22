@@ -10,7 +10,8 @@
         var numVotes = [];
         voteStatus[{{post.id}}] = {{post.vote}}
         numVotes[{{post.id}}] = {{post.num_votes}}
-        {% for c in comments %}''            voteStatus[{{c.id}}] = {{c.vote}}
+        {% for c in comments %}
+            voteStatus[{{c.id}}] = {{c.vote}}
             numVotes[{{c.id}}] = {{c.num_votes}}
         {% endfor %}
 
@@ -61,9 +62,29 @@
                 },
                 success:function(data,status){
                     if (data.success == true)
+                    {
                         location.reload();
+                    }
                 }
             });
+        }
+
+        function deletep (obj,cid)
+        {
+            $.ajax({type: "POST",
+                url: "{% url 'deletepost' %}",
+                data: { 
+                    postId: cid,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success:function(data,status){
+                    if (data.success == true)
+                    {
+                        alert("Successfully Deleted");
+                        location.reload();
+                    }
+                }
+            });            
         }
     </script>
 </head>
@@ -77,7 +98,7 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <!-- <li><a href="#">COMMENTS</a></li> -->
+                    <li style="text-transform:uppercase"><a href="#">{{post.type}}</a></li>
                 </ul>
                 <ul class="nav navbar-nav pull-right">
                     {% if user.is_authenticated %}
@@ -114,19 +135,23 @@
             <span id="downvote" onclick="vote(this, {{post.id}}, -1)" {% if user.is_authenticated %} class="glyphicon glyphicon-arrow-down" {% else %} class="glyphicon glyphicon-arrow-down disabled" {% endif %} {% if post.vote == -1 %} style="color:red"  {% else %} style="color:silver" {% endif %} aria-hidden="true"></span>
         </div>
 
-        <div class="col-md-2">
+        <div class="col-md-3">
             {% if post.type == 'text' %}
             <img src={% static "images/a.png" %} style="width:80px">
             {% else %}
             <img src={{ post.imgurl }} style="width:80px">
             {% endif %}
         </div>
-        <div class="col-md-10">
-            {% if post.type == 'text' %}
-            {{post.title}}
+        <div class="col-md-8">
+            {% if post.type == 'text' or post.type == 'event' %}
+            {{post.title}} 
             {% else %}
             <a href={{post.link}}>{{post.title}}</a>
             {% endif %}
+            {% if ismoderator and not post.deleted %}
+            <p class="comments"><a class="btn btn-danger btn-active btn-sm pull-right" onclick="deletep(this,{{post.id}})">delete </a></p>
+            {% endif %}
+
             <p class="comments">Posted By: <a href={% url 'user' post.posted_by %} class="comments">{{post.posted_by}}</a> to <a href={% url 'subreddit' post.posted_in %} class="comments">{{post.posted_in}}</a></p>
             <p class="comments" id="time">{{post.created_on}}</p>
             <p class="comments">{{post.num_comments}}
@@ -134,7 +159,14 @@
         </div>
         <br>
         <div class="col-md-8 col-md-offset-2">
+        {% if post.type == 'text' %}
             {{post.text}}
+        {% elif post.type == 'event' %}
+            Time : {{post.time}}<br>
+            Venue : {{post.venue}}<br>
+            {{post.description}}
+        {% endif %}
+
         </div>
         <div class="col-md-12 col-md-offset-2">
             <!-- <form role="form" action="{% url 'signup' %}" method="post" class="form-inlinehorizontal"> -->
@@ -156,25 +188,6 @@
     <div class="col-md-8">
         <h4>Comments</h4><hr>
     </div>
-<!--     {% comment %}
-    {% for c in comments %}
-    <div class="col-md-8">
-        <div class="col-md-1" data-toggle="tooltip" title="Login to Vote">
-            <span class="glyphicon glyphicon-arrow-up disabled" aria-hidden="true"></span>
-            <center>
-                <p class="comments">12</p>
-            </center>
-            <span class="glyphicon glyphicon-arrow-down disabled" aria-hidden="true"></span>
-        </div>
-        <div class="col-md-10">
-            <p class="comments"><a href={% url 'user' c.posted_by %}  class="comments">{{c.posted_by}}</a> {{c.created_on}}</p>
-            <p>{{c.text}}</p>
-            <p class="comments"><a href="post.html" class="comments">reply </a></p>
-        </div>
-    {#  {% include 'comment.html' %} #}
-    </div>
-    {% endfor %}
-    {% endcomment %} -->
 
     <div>
     {% for c in comments %}
@@ -210,19 +223,24 @@
         <div class="col-md-10">
             <p class="comments"><a href={% url 'user' c.posted_by %}  class="comments">{{c.posted_by}}</a> {{c.created_on}}</p>
             <p>{{c.text}}</p>
-            {% if not archived %}
+            {% if not archived and not c.deleted %}
             <p class="comments"><a class="comments" onclick="reply(this)">reply </a></p>
             <div id="replybox" style="display:none">
                 <!-- <form role="form" action="{% url 'signup' %}" method="post"> -->
                 <!-- {% csrf_token %} -->
                 <input type="hidden" name="comment_on" id="comment_on" value="{{c.id}}">
                 <textarea type="text" class="form-control" name="reply" id="reply" placeholder="Post a reply"></textarea>
-                {% if user.is_authenticated %}
+                {% if user.is_authenticated%}
                 <input type="submit" class="btn btn-info btn-active btn-xs" onclick="postreply(this, {{c.id}})" value="POST"> {% else %}
                 <input class="btn btn-info btn-active btn-xs" data-toggle="modal" data-target="#myModal" value="Login to Comment">
                 {% endif %}
                 <!-- </form><br> -->
             </div>
+            {% if ismoderator or user.username == c.posted_by.username %}
+            {% if not c.deleted %}
+            <p class="comments"><a class="btn btn-danger btn-active btn-sm pull-right" onclick="deletep(this,{{c.id}})">delete </a></p>
+            {% endif %}
+            {% endif %}
             {% endif %}
         </div>
     {% endfor %}

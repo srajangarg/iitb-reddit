@@ -109,6 +109,24 @@
             });
         }
 
+        function deletep (obj,pid)
+        {
+            $.ajax({type: "POST",
+                url: "{% url 'deletepost' %}",
+                data: { 
+                    postId: pid,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success:function(data,status){
+                    if (data.success == true)
+                    {
+                        alert("Post Deleted");
+                        location.reload();
+                    }
+                }
+            });            
+        }
+
         $(document).on('submit', '#addmod-form', function(){
             $.ajax({
                 type: $(this).attr('method'),
@@ -141,7 +159,7 @@
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     <li><h6><strong>{{ subreddit }}</strong></h6></li>
-                    <li><a id="hot">HOT</a></li>
+                    <!-- <li><a id="hot">HOT</a></li>
                     <li><a id="new">NEW</a></li>
                     <li><a id="rising">RISING</a></li>
                     <li class="dropdown">
@@ -153,7 +171,7 @@
                             <li><a id="year">Past Year</a></li>
                             <li><a id="all">All Time</a></li>
                         </ul>
-                    </li>
+                    </li> -->
                 </ul>
                 <ul class="nav navbar-nav pull-right">
                     {% if user.is_authenticated %}
@@ -175,8 +193,12 @@
     <div class="col-md-4 pull-right">
         <h4>About {{ subreddit }}:</h4>
         <p>{{ subreddit.description }}</p>
-        <h4>Popular Subreddits</h4>
         <h5><span id=subscribers>{{num_subscribers}}</span> Subscribers</h5>
+        {% if subscribed %}
+        <h5><a class="btn btn-danger btn-active" onclick="unsubscribe(this)">Unsubscribe</a></h5>
+        {% else %}
+        <h5><a class="btn btn-success btn-active" onclick="subscribe(this)">Subscribe</a></h5>
+        {% endif %}
         {% if user.is_authenticated %}
         <h5><a class="btn btn-success btn-active" href={% url 'newpost' %}?subreddit={{ subreddit }}>Submit a new post</a></h5>
             {% if assignedmod %}
@@ -196,7 +218,7 @@
                     {% csrf_token %}
                     <input type="text" class="form-control" name="username" id="username" placeholder="Enter Username" required>
                     <input type="hidden" class="form-control" name="subreddit" id="subreddit" value="{{subreddit}}">
-                    <input type="submit" class="btn btn-info btn-active" value="ADD">
+                    <input type="submit" class="btn btn-info btn-active btn-sm" value="ADD">  
                 </form>
 
             {% else %}
@@ -205,15 +227,35 @@
                 {% else %}
                 <h5><a class="btn btn-success btn-active" onclick="subscribe(this)">Subscribe</a></h5>
                 {% endif %}
+
             {% endif %}
         {% else %}
         <h5><a data-toggle="modal" data-target="#myModal">Sign-in</a> to post</h5>
         <h5><a data-toggle="modal" data-target="#myModal">Subscribe</a></h5>
         {% endif %}
-        <h5>Moderators</h5>
+        <br><h4>Moderators</h4>
         {% for m in moderators %}
                 <li><a href={% url 'user' m %}>{{ m }}</a></li>
         {% endfor %}
+
+        <br><h4>Upcoming Events</h4>
+        {% for e in events %}
+        <div class="col-md-12">  
+            <div class="row">
+                <div class="col-md-2">
+                    <img src={% static "images/a.png" %} style="width:60px;height:60px;">
+                </div>
+                <div class="col-md-9 col-md-offset-1">
+                    <a href={% url 'post' e.id %}>{{e.title}}</a> 
+                    <p class="comments">Posted By: <a href={% url 'user' e.posted_by %} class="comments">{{e.posted_by}}</a> to <a href={% url 'subreddit' e.posted_in %} class="comments">{{e.posted_in}}</a></p>
+                    <p class="comments" id="time">Time: {{e.time}}</p>
+                    <p class="comments" id="time">Venue: {{e.venue}}</p>
+                    <p class="comments"><a href={% url 'post' e.id %} class="comments">{{e.num_comments}} 
+                    {% if e.num_comments < 2 %}comment{%else %}comments{%endif %}</a></p> 
+                </div>
+            </div>
+        </div>
+        {% endfor%}
         <!-- <h4><strong>Rules:</strong></h4>
         <ul>
             {#
@@ -235,24 +277,26 @@
                 </center>
                 <span id="downvote" onclick="vote(this, {{p.id}}, -1)" {% if user.is_authenticated %} class="glyphicon glyphicon-arrow-down" {% else %} class="glyphicon glyphicon-arrow-down disabled" {% endif %} {% if p.vote == -1 %} style="color:red"  {% else %} style="color:silver" {% endif %} aria-hidden="true"></span>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-3">
             {% if p.type == 'text' %}
             <img src={% static "images/a.png" %} style="width:80px">
             {% else %}
             <img src={{ p.imgurl }} style="width:80px">
             {% endif %}
             </div>
-            <div class="col-md-9">
+            <div class="col-md-8">
                 {% if p.type == 'text' %}
                 <a href={% url 'post' p.id %}>{{p.title}}</a>  | {{p.site}}
                 {% else %}
                 <a href={{p.link}}>{{p.title}}</a> | {{p.site}}
                 {% endif %}
+                {% if ismoderator %}
+                <p><a class="btn btn-danger btn-active btn-sm pull-right" onclick="deletep(this, {{p.id}})">delete post</a></p>
+                {% endif %}
                 <p class="comments">Posted By: <a href={% url 'user' p.posted_by %} class="comments">{{p.posted_by}}</a> to <a href={% url 'subreddit' p.posted_in %} class="comments">{{p.posted_in}}</a></p>
                 <p class="comments" id="time">{{p.created_on}}</p>
-                <p class="comments"><a href={% url 'post' p.id %} class="comments">{{p.num_comments}}
+                <p class="comments"><a href={% url 'post' p.id %} class="comments">{{p.num_comments}} 
                 {% if p.num_comments < 2 %}comment{%else %}comments{%endif %}</a> points</p>
-
             </div>
         </div>
         {% endfor%}

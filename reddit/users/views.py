@@ -3,10 +3,10 @@ from django.contrib.auth import get_user_model, authenticate, login as auth_logi
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from .models import *
+from posts.models import *
 from subreddits.models import Subreddit
-from posts.models import TextPost, LinkPost, Comment, Vote
 from posts.views import updatePostFeatures
-from subreddits.views import  popularSubreddits
+from subreddits.views import  popularSubreddits, checkSubscribed
 import calendar, ldap
 from datetime import datetime, timedelta
 from math import log
@@ -38,10 +38,13 @@ def index(request, ranking = ""):
         else:
             posts = feed(ranking,request.user)
         popularsubreddits = popularSubreddits(user=request.user)
+        events = getEvents(request.user)
     else:
         posts = feed(ranking)
         popularsubreddits = popularSubreddits()
-    return render(request, "index.html", {"posts" : posts, "popularsubreddits" : popularsubreddits})
+        events = getEvents()
+    return render(request, "index.html", {"posts" : posts, "popularsubreddits" : popularsubreddits,
+                                          "events" : events})
 
 top_sort_orders = ['','day', 'week', 'month','year','all']
 
@@ -137,11 +140,14 @@ def user(request, username):
     if request.user.is_authenticated():
         userposts = userPosts(username, request.user)
         mypage = request.user == view_user
+        events = getEventsByUser(username, request.user)
     else:
         userposts = userPosts(username)
+        mypage = False
+        events = getEventsByUser(username)
     return render(request, "user.html", {"posts" : userposts, "username" : username,
                                          "moderates" : moderated_subreddit, "mypage" : mypage,
-                                         "ismoderator" : ismoderator})
+                                         "ismoderator" : ismoderator, "events" : events})
 
 
 def userUpvoted(request, username):
@@ -155,11 +161,14 @@ def userUpvoted(request, username):
     if request.user.is_authenticated():
         userposts = userVotedPosts(username, 1, request.user)
         mypage = request.user == view_user
+        events = getEventsByUser(username, request.user)
     else:
         userposts = userVotedPosts(username, 1)
+        mypage = False
+        events = getEventsByUser(username)
     return render(request, "user.html", {"posts" : userposts, "username" : username,
                                          "moderates" : moderated_subreddit, "mypage" : mypage,
-                                         "ismoderator" : ismoderator})
+                                         "ismoderator" : ismoderator, "events" : events})
 
 def userDownvoted(request, username):
     try:
@@ -172,11 +181,15 @@ def userDownvoted(request, username):
     if request.user.is_authenticated():
         userposts = userVotedPosts(username, -1, request.user)
         mypage = request.user == view_user
+        mypage = request.user == view_user
+        events = getEventsByUser(username, request.user)
     else:
         userposts = userVotedPosts(username, -1)
+        mypage = False
+        events = getEventsByUser(username)
     return render(request, "user.html", {"posts" : userposts, "username" : username,
                                          "moderates" : moderated_subreddit, "mypage" : mypage,
-                                         "ismoderator" : ismoderator})
+                                         "ismoderator" : ismoderator, "events" : events})
 
 # def myaccount(request):
 #
@@ -295,6 +308,24 @@ def moderatedSubreddit(username):
     for r in qs:
         subrs.append(r.subreddit)
     return subrs
+
+def getEvents(user=None):
+    events = []
+
+    for e in Event.objects.all():
+        if timezone.now() < e.time and checkSubscribed(user=user, subreddit=e.posted_in):
+            events.append(e)
+
+    return sorted(events, key=lambda e: e.time, reverse=True)
+
+def getEventsByUser(username, user=None):
+    events = []
+
+    for e in Event.objects.filter(posted_by__username=username):
+        if timezone.now() > e.time:
+            events.append(updatePostFeatures(e, user))
+
+    return sorted(events, key=lambda e: e.time, reverse=True)
 
 def validate_username(username):
     return re.compile('[a-z0-9_]+$').match(username)

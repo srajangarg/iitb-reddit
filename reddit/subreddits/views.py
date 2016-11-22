@@ -1,11 +1,12 @@
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import get_user_model
+from django.db.models import Sum
 from django.shortcuts import render, redirect
+from django.utils import timezone
 import re
 from .models import *
 from users.models import Subscriber, Moderator
-from posts.models import TextPost, LinkPost, Comment, Vote
-from posts.views import updatePostFeatures
+from posts.models import *
 
 def index(request, subreddit_title):
 
@@ -21,13 +22,16 @@ def index(request, subreddit_title):
     if request.user.is_authenticated():
         subscribed = checkSubscribed(request.user, subreddit)
         posts = feed(subreddit, request.user)
+        events = getEvents(subreddit, request.user)
     else:
         posts = feed(subreddit)
+        events = getEvents(subreddit)
         subscribed = False
+
     return render(request, "subreddit.html", {"subreddit" : subreddit, "posts" : posts,
                                               "num_subscribers" : num_subscribers, "subscribed" : subscribed,
                                               "moderators" : moderators, "ismoderator" : ismoderator,
-                                              "assignedmod" : assignedmod})
+                                              "assignedmod" : assignedmod, "events" : events})
 
 
 def popularSubreddits(num=5, user = None):
@@ -51,6 +55,16 @@ def feed(subreddit, user = None):
         posts.append(updatePostFeatures(p, user))
 
     return sorted(posts, key = lambda p: p.num_votes, reverse=True)
+
+def getEvents(subreddit, user=None):
+    
+    events = []
+
+    for e in Event.objects.filter(posted_in=subreddit):
+        if timezone.now() < e.time:
+            events.append(updatePostFeatures(e, user))
+
+    return sorted(events, key=lambda e: e.time, reverse=True)
 
 def subscribersCount(subreddit):
 
@@ -235,3 +249,31 @@ def assignNewModerator(subreddit):
 
 def validate_title(username):
     return re.compile('[A-Za-z0-9_]+$').match(username)
+
+
+def updatePostFeatures(post, user=None):
+
+    post.num_votes = Vote.objects.filter(voted_on__id = post.id).aggregate(votes = Sum('value')).get('votes')
+    
+    post.num_comments = numComments(post)
+
+    if post.num_votes == None:
+        post.num_votes = 0
+
+    if user is not None:
+        
+        qs = Vote.objects.filter(voted_on__id = post.id, voted_by = user)
+        if len(qs) > 0:
+            post.vote = qs[0].value
+
+    return post
+
+
+def numComments(post):
+    
+    num = 0
+    qs = Comment.objects.filter(commented_on = post)
+    num += qs.count()
+    for c in qs:
+        num += numComments(c)
+    return num
