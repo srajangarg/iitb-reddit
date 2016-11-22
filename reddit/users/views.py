@@ -92,12 +92,20 @@ def signup(request):
     password = request.POST['password']
 
     if ldap_auth(email, ldappass):
+        if get_user_model().objects.filter(email=email).exists():
+            return JsonResponse({'success' : False, 'Error' : "LDAP already in use"})
+        
+        if get_user_model().objects.filter(username=username).exists():
+            return JsonResponse({'success' : False, 'Error' : "Username already taken up"})
+
         user = get_user_model().objects.create_user(username, email, password)
+
         if user is not None:
-            auth_login(request, user)
+            login_user = authenticate(username=username, password=password)
+            auth_login(request, login_user)
             return JsonResponse({'success' : True})
 
-    return JsonResponse({'success' : False, 'Error' : "Invalid credentials"})
+    return JsonResponse({'success' : False, 'Error' : "Invalid LDAP credentials"})
 
 def logout(request):
 
