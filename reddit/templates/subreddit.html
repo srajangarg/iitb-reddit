@@ -120,6 +120,7 @@
                 success:function(data,status){
                     if (data.success == true)
                     {
+                        alert("Post Deleted");
                         location.reload();
                     }
                 }
@@ -209,30 +210,33 @@
                     {% csrf_token %}
                     <input type="text" class="form-control" name="username" id="username" placeholder="Enter Username">
                     <input type="hidden" class="form-control" name="subreddit" id="subreddit" value="{{subreddit}}">
-                    <input type="submit" class="btn btn-info btn-active" value="ADD">  
+                    <input type="submit" class="btn btn-info btn-active btn-sm" value="ADD">  
                 </form>
             {% endif %}
         {% else %}
         <h5><a data-toggle="modal" data-target="#myModal">Sign-in</a> to post</h5>
         <h5><a data-toggle="modal" data-target="#myModal">Subscribe</a></h5>
         {% endif %}
-        <h5>Moderators</h5>
+        <br><h4>Moderators</h4>
         {% for m in moderators %}
                 <li><a href={% url 'user' m %}>{{ m }}</a></li>
         {% endfor %}
 
+        <br><h4>Upcoming Events</h4>
         {% for e in events %}
-        <div class="col-md-8">  
-            <div class="col-md-2">
-                <img src={% static "images/a.png" %} style="width:60px;height:60px;">
-            </div>
-            <div class="col-md-9">
-                <a href={% url 'post' e.id %}>{{e.title}}</a> 
-                <p class="comments">Posted By: <a href={% url 'user' e.posted_by %} class="comments">{{e.posted_by}}</a> to <a href={% url 'subreddit' e.posted_in %} class="comments">{{e.posted_in}}</a></p>
-                <p class="comments" id="time">Time: {{e.time}}</p>
-                <p class="comments" id="time">Venue: {{e.venue}}</p>
-                <p class="comments"><a href={% url 'post' e.id %} class="comments">{{e.num_comments}} 
-                {% if e.num_comments < 2 %}comment{%else %}comments{%endif %}</a></p> 
+        <div class="col-md-12">  
+            <div class="row">
+                <div class="col-md-2">
+                    <img src={% static "images/a.png" %} style="width:60px;height:60px;">
+                </div>
+                <div class="col-md-9 col-md-offset-1">
+                    <a href={% url 'post' e.id %}>{{e.title}}</a> 
+                    <p class="comments">Posted By: <a href={% url 'user' e.posted_by %} class="comments">{{e.posted_by}}</a> to <a href={% url 'subreddit' e.posted_in %} class="comments">{{e.posted_in}}</a></p>
+                    <p class="comments" id="time">Time: {{e.time}}</p>
+                    <p class="comments" id="time">Venue: {{e.venue}}</p>
+                    <p class="comments"><a href={% url 'post' e.id %} class="comments">{{e.num_comments}} 
+                    {% if e.num_comments < 2 %}comment{%else %}comments{%endif %}</a></p> 
+                </div>
             </div>
         </div>
         {% endfor%}
@@ -266,13 +270,13 @@
                 {% else %}
                 <a href={{p.link}}>{{p.title}}</a>
                 {% endif %}
+                {% if ismoderator %}
+                <p><a class="btn btn-danger btn-active btn-sm pull-right" onclick="deletep(this, {{p.id}})">delete post</a></p>
+                {% endif %}
                 <p class="comments">Posted By: <a href={% url 'user' p.posted_by %} class="comments">{{p.posted_by}}</a> to <a href={% url 'subreddit' p.posted_in %} class="comments">{{p.posted_in}}</a></p>
                 <p class="comments" id="time">{{p.created_on}}</p>
                 <p class="comments"><a href={% url 'post' p.id %} class="comments">{{p.num_comments}} 
                 {% if p.num_comments < 2 %}comment{%else %}comments{%endif %}</a> points</p>
-                {% if ismoderator %}
-                <p><a onclick="deletep(this, {{p.id}})">delete post</a></p>
-                {% endif %}
             </div>
         </div>
         {% endfor%}
