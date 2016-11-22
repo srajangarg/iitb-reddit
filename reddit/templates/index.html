@@ -4,6 +4,7 @@
 <head>
     <link rel="stylesheet" href={% static "css/bootstrap.css" %}>
     <script type="text/javascript" src={% static "js/jquery.1.11.1.js" %}></script>
+    <script type="text/javascript" src={% static "js/async-form.js" %}></script>
     <script type="text/javascript">
         var voteStatus = [];
         var numVotes = [];
@@ -41,42 +42,6 @@
                 }
             });
         }
-
-        $(document).on('submit', '#login-form', function(){
-            $.ajax({ 
-                type: $(this).attr('method'), 
-                url: this.action, 
-                data: $(this).serialize(),
-                context: this,
-                success: function(data, status) {
-                    if(data.success){
-                        location.reload();
-                    }
-                    else{
-                        alert(data.Error);
-                    }
-                }
-            });
-            return false;
-        });
-
-        $(document).on('submit', '#signup-form', function(){
-            $.ajax({ 
-                type: $(this).attr('method'), 
-                url: this.action, 
-                data: $(this).serialize(),
-                context: this,
-                success: function(data, status) {
-                    if(data.success){
-                        location.reload();
-                    }
-                    else{
-                        alert(data.Error);
-                    }
-                }
-            });
-            return false;
-        });
     </script>
 </head>
 
