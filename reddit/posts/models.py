@@ -28,6 +28,7 @@ class TextPost(Post):
     posted_in = models.ForeignKey(Subreddit)
     title = models.CharField('title', max_length=200)
     text = models.TextField('text')
+    site = models.CharField('site', max_length=50, default="self.Reddit")
 
     def __unicode__(self):
         return self.title
@@ -37,6 +38,8 @@ class LinkPost(Post):
     posted_in = models.ForeignKey(Subreddit)
     title = models.CharField('title', max_length=200)
     link = models.URLField('link', max_length=200)
+    imgurl = models.URLField('imgurl', max_length=200, default = 'static "images/a.png"')
+    site = models.CharField('site', max_length=50, default="Web")
 
     def __unicode__(self):
         return self.title

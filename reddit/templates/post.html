@@ -113,10 +113,15 @@
             </center>
             <span id="downvote" onclick="vote(this, {{post.id}}, -1)" {% if user.is_authenticated %} class="glyphicon glyphicon-arrow-down" {% else %} class="glyphicon glyphicon-arrow-down disabled" {% endif %} {% if post.vote == -1 %} style="color:red"  {% else %} style="color:silver" {% endif %} aria-hidden="true"></span>
         </div>
+
         <div class="col-md-2">
-            <img src={% static "images/a.png" %} style="width:60px;height:60px;">
+            {% if post.type == 'text' %}
+            <img src={% static "images/a.png" %} style="width:80px">
+            {% else %}
+            <img src={{ post.imgurl }} style="width:80px">
+            {% endif %}
         </div>
-        <div class="col-md-9">
+        <div class="col-md-10">
             {% if post.type == 'text' %}
             {{post.title}} 
             {% else %}
