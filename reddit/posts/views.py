@@ -3,35 +3,10 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import render, redirect
 from django.db.models import Sum
 from subreddits.models import Subreddit
+from subreddits.views import getModerators, updatePostFeatures, numComments
 from .models import *
 from datetime import timedelta
 from django.utils import timezone
-
-def numComments(post):
-    
-    num = 0
-    qs = Comment.objects.filter(commented_on = post)
-    num += qs.count()
-    for c in qs:
-        num += numComments(c)
-    return num
-
-def updatePostFeatures(post, user=None):
-
-    post.num_votes = Vote.objects.filter(voted_on__id = post.id).aggregate(votes = Sum('value')).get('votes')
-    
-    post.num_comments = numComments(post)
-
-    if post.num_votes == None:
-        post.num_votes = 0
-
-    if user is not None:
-        
-        qs = Vote.objects.filter(voted_on__id = post.id, voted_by = user)
-        if len(qs) > 0:
-            post.vote = qs[0].value
-
-    return post
 
 # def getComments(post):
 

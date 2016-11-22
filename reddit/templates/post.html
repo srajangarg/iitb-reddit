@@ -62,12 +62,14 @@
                 },
                 success:function(data,status){
                     if (data.success == true)
+                    {
                         location.reload();
+                    }
                 }
             });
         }
 
-        function delete (obj,cid)
+        function deletep (obj,cid)
         {
             $.ajax({type: "POST",
                 url: "{% url 'deletepost' %}",
@@ -78,6 +80,7 @@
                 success:function(data,status){
                     if (data.success == true)
                     {
+                        alert("Comment Deleted");
                         location.reload();
                     }
                 }
@@ -213,9 +216,6 @@
             <p>{{c.text}}</p>
             {% if not archived %}
             <p class="comments"><a class="comments" onclick="reply(this)">reply </a></p>
-            {% if ismoderator %}
-            <p class="comments"><a class="comments" onclick="delete(this,{{c.id}})">delete </a></p>
-            {% endif %}
             <div id="replybox" style="display:none">
                 <!-- <form role="form" action="{% url 'signup' %}" method="post"> -->
                 <!-- {% csrf_token %} -->
@@ -227,6 +227,9 @@
                 {% endif %}   
                 <!-- </form><br> -->
             </div>
+            {% if ismoderator %}
+            <p class="comments"><a class="btn btn-danger btn-active btn-sm pull-right" onclick="deletep(this,{{c.id}})">delete </a></p>
+            {% endif %}
             {% endif %}
         </div>
     {% endfor %}
