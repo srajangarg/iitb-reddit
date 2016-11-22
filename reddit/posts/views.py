@@ -35,14 +35,7 @@ def getComments(post, depth, user=None):
         d = c.depth
         if c.child < 0:
             c.childrange = range(-c.child)
-    return comments 
-
-
-# def printComments(comments, string = ""):
-
-#     for c in comments:
-#         print string + str(c.id)
-#         printComments(c.childs, "    ")
+    return comments
 
 def post(request, post_id):
 
@@ -69,7 +62,7 @@ def post(request, post_id):
     if request.user.is_authenticated(): 
         updatePostFeatures(p,request.user)
         comments = getComments(p, 0, request.user)
-        ismoderator = request.user in getModerators(p.posted_in) or request.user.is_staff
+        ismoderator = request.user in getModerators(p.posted_in) or request.user.is_staff or p.posted_by == request.user
     else:
         updatePostFeatures(p)
         comments = getComments(p, 0)
@@ -107,10 +100,21 @@ def submitPost(request):
     if post_type == 'text':
         text = request.POST['text']
         p = TextPost(posted_by = request.user, posted_in=subreddit, title=title, text=text)
-        p.save()
+        if request.POST.getlist('timed[]'):
+            p.expires_on = timezone.now() + timedelta(days=int(request.POST['days']), 
+                                                  hours=int(request.POST['hours']))
+        else:
+            p.expires_on = timezone.now() + timedelta(days=150)
+    
     elif post_type == 'link':
         link = request.POST['url']
         p = LinkPost(posted_by = request.user, posted_in=subreddit, title=title, link=link)
+        if request.POST.getlist('timed[]'):
+            p.expires_on = timezone.now() + timedelta(days=int(request.POST['days']), 
+                                                  hours=int(request.POST['hours']))
+        else:
+            p.expires_on = timezone.now() + timedelta(days=150)
+    
     elif post_type == 'event':
         time = request.POST['time']
         venue = request.POST['venue']
@@ -118,12 +122,6 @@ def submitPost(request):
         p = Event(posted_by = request.user, posted_in=subreddit, title=title, time=time, venue=venue, description=description)
         p.expires_on = time
 
-    if post_type == 'text' or post_type == 'link':
-        if request.POST.getlist('timed[]'):
-            p.expires_on = timezone.now() + timedelta(days=int(request.POST['days']), 
-                                                  hours=int(request.POST['hours']))
-        else:
-            p.expires_on = timezone.now() + timedelta(days=150)
     p.save()
     return JsonResponse({'success' : True, 'Message' : "Posted", 'postID' : p.id})
 
@@ -185,21 +183,27 @@ def deletePost(request):
         
         qs = Post.objects.filter(id=postId)
         if qs[0].deleted:
-            return JsonResponse({'success' : False, 'Error' : "Alreday deleted"})
+            return JsonResponse({'success' : False, 'Error' : "Already deleted"})
             
-        qs.update(expires_on=timezone.now(), deleted=True)
         
         qs2 = TextPost.objects.filter(id=postId)
         if qs2.exists():
             qs2.update(title="[deleted]", text="[deleted]")
+            qs2.update(expires_on=timezone.now(), deleted=True)
 
         qs2 = LinkPost.objects.filter(id=postId)
         if qs2.exists():
             qs2.update(title="[deleted]", link="")
+            qs2.update(expires_on=timezone.now(), deleted=True)
 
         qs2 = Event.objects.filter(id=postId)
         if qs2.exists():
             qs2.update(title=qs[0].title + " [cancelled]")
+            qs2.update(expires_on=timezone.now(), deleted=True)
+
+        qs2 = Comment.objects.filter(id=postId)
+        if qs2.exists():
+            qs2.update(text="[deleted]", deleted=True)
 
         return JsonResponse({'success' : True})
     return JsonResponse({'success' : False, 'Error' : "Login to delete"})

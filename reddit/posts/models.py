@@ -12,7 +12,6 @@ class Post(models.Model):
 
     created_on = models.DateTimeField('created_on', auto_now_add=True)
     posted_by = models.ForeignKey(Redditer)
-    expires_on = models.DateTimeField('expires_on')
     deleted = models.BooleanField('deleted', default=False)
 
     def __unicode__(self):
@@ -29,6 +28,7 @@ class TextPost(Post):
     posted_in = models.ForeignKey(Subreddit)
     title = models.CharField('title', max_length=200)
     text = models.TextField('text')
+    expires_on = models.DateTimeField('expires_on')
 
     def __unicode__(self):
         return self.title
@@ -38,6 +38,7 @@ class LinkPost(Post):
     posted_in = models.ForeignKey(Subreddit)
     title = models.CharField('title', max_length=200)
     link = models.URLField('link', max_length=200)
+    expires_on = models.DateTimeField('expires_on')
 
     def __unicode__(self):
         return self.title
@@ -52,6 +53,7 @@ class Comment(Post):
 
 class Event(Post):
 
+    expires_on = models.DateTimeField('expires_on')
     posted_in = models.ForeignKey(Subreddit)
     title = models.CharField('title', max_length=200)
     time = models.DateTimeField('time')

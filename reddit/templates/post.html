@@ -150,9 +150,9 @@
         </div>
         <br>
         <div class="col-md-8 col-md-offset-2">
-        {% if post.type == text %}
+        {% if post.type == 'text' %}
             {{post.text}}
-        {% elif post.type == event %}
+        {% elif post.type == 'event' %}
             Time : {{post.time}}<br>
             Venue : {{post.venue}}<br>
             {{post.description}}
@@ -214,21 +214,23 @@
         <div class="col-md-10">
             <p class="comments"><a href={% url 'user' c.posted_by %}  class="comments">{{c.posted_by}}</a> {{c.created_on}}</p>
             <p>{{c.text}}</p>
-            {% if not archived %}
+            {% if not archived and not c.deleted %}
             <p class="comments"><a class="comments" onclick="reply(this)">reply </a></p>
             <div id="replybox" style="display:none">
                 <!-- <form role="form" action="{% url 'signup' %}" method="post"> -->
                 <!-- {% csrf_token %} -->
                 <input type="hidden" name="comment_on" id="comment_on" value="{{c.id}}">
                 <textarea type="text" class="form-control" name="reply" id="reply" placeholder="Post a reply"></textarea>
-                {% if user.is_authenticated %}
+                {% if user.is_authenticated%}
                 <input type="submit" class="btn btn-info btn-active btn-xs" onclick="postreply(this, {{c.id}})" value="POST"> {% else %}
                 <input class="btn btn-info btn-active btn-xs" data-toggle="modal" data-target="#myModal" value="Login to Comment"> 
                 {% endif %}   
                 <!-- </form><br> -->
             </div>
-            {% if ismoderator %}
+            {% if ismoderator or user.username == c.posted_by.username %}
+            {% if not c.deleted %}
             <p class="comments"><a class="btn btn-danger btn-active btn-sm pull-right" onclick="deletep(this,{{c.id}})">delete </a></p>
+            {% endif %}
             {% endif %}
             {% endif %}
         </div>
