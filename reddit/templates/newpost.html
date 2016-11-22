@@ -7,6 +7,26 @@
     <script type="text/javascript" src={% static "js/jquery.1.11.1.js" %}></script>
     <script type="text/javascript" src={% static "js/jquery-ui.js" %}></script>
     <script type="text/javascript">
+        $(document).on('submit', '#newpost-form', function(){
+            $.ajax({ 
+                type: $(this).attr('method'), 
+                url: this.action, 
+                data: $(this).serialize(),
+                context: this,
+                success: function(data, status) {
+                    console.log(data);
+                    if(data.success){
+                        alert("successfully Added");
+                        window.location = '{% url 'index' %}';
+                    }
+                    else{
+                        alert(data.Error);
+                    }
+                }
+            });
+            return false;
+        });
+
         function posttype()
         {
             if (document.getElementById('link').checked) 
@@ -29,6 +49,20 @@
             });
         });
 
+        function checka ()
+        {
+            var x = document.getElementById("check").checked;
+            if (x)
+           {
+                document.getElementById("hours").type = "number";
+                document.getElementById("days").type = "number";
+           }
+           else
+           {
+                document.getElementById("hours").type = "hidden";
+                document.getElementById("days").type = "hidden";
+           }
+        }
     </script>
 </head>
 
@@ -61,7 +95,7 @@
     <div id="container">
         <div class="col-md-8">  
             <h4>CREATE A NEW POST</h4><br>
-            <form role="form" action="{% url 'submitpost' %}" method="post">
+            <form id="newpost-form" role="form" action="{% url 'submitpost' %}" method="post">
                     {% csrf_token %}
                 <h5 style="color:#049">POST TYPE</h5>
                 <label class="radio-inline">
@@ -82,6 +116,9 @@
                     <h5 style="color:#049">Text</h5>
                     <input type="text" class="form-control" name="text" id="text" placeholder="Enter Text">
                 </div>
+                <input type="checkbox" id="check" onclick="checka()">Timed Post?<br>
+                <input type="hidden" class="form-control" min="0" value="0" name="days" id="days" placeholder="Enter Days" style="display:inline;width: 33%">
+                <input type="hidden" class="form-control" min="0" value="0" name="hours" id="hours" placeholder="Enter Hours" style="display:inline; width: 33%">
                 <input type="submit" class="btn btn-info btn-active" value="POST">  
             </form> 
         </div>

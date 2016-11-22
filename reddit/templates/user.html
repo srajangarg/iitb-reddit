@@ -79,7 +79,15 @@
     <!-- Sidebar -->
     <div class="col-md-4 pull-right">
         <h5><strong>{{ username }}</strong></h5>
-        <h5><a class="btn btn-success btn-active" href={% url 'addsubreddit' %}>Create a Subreddit</a></h5>
+        {% if ismoderator %}
+        <h5>Moderates</h5>
+        {% for subr in moderates %}
+            <li><a href={% url 'subreddit' subr %}>{{subr}}</a></li>
+        {% endfor %}
+        {% endif %}
+        {% if mypage %}
+        <h5><a class="btn btn-success btn-active" href={% url 'addsubredditform' %}>Create a Subreddit</a></h5>
+        {% endif %}
     </div>
 
     <!-- Main Content -->

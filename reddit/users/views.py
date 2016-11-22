@@ -9,7 +9,7 @@ from posts.views import updatePostFeatures
 import calendar, ldap
 from datetime import datetime, timedelta
 from math import log
-
+import re 
 # make this date timezone aware
 epoch = timezone.make_aware(datetime(1970, 1, 1), timezone.get_current_timezone())
 
@@ -94,6 +94,10 @@ def signup(request):
     if ldap_auth(email, ldappass):
         if get_user_model().objects.filter(email=email).exists():
             return JsonResponse({'success' : False, 'Error' : "LDAP already in use"})
+        
+        username = username.strip()
+        if not validate_username(username):
+            return JsonResponse({'success' : False, 'Error' : "Username should contain only a-z0-9_"})
 
         if get_user_model().objects.filter(username=username).exists():
             return JsonResponse({'success' : False, 'Error' : "Username already taken up"})
@@ -119,26 +123,50 @@ def user(request, username):
         return HttpResponse("User Does Not Exist")
 
     moderated_subreddit = moderatedSubreddit(username)
+    ismoderator = len(moderated_subreddit) > 0
     if request.user.is_authenticated():
         userposts = userPosts(username, request.user)
+        mypage = request.user == view_user
     else:
         userposts = userPosts(username)
-    return render(request, "user.html", {"posts" : userposts, "username" : username, "moderates" : moderated_subreddit})
+    return render(request, "user.html", {"posts" : userposts, "username" : username,
+                                         "moderates" : moderated_subreddit, "mypage" : mypage,
+                                         "ismoderator" : ismoderator})
 
 
 def userUpvoted(request, username):
+    try:
+        view_user = get_user_model().objects.get(username = username)
+    except:
+        return HttpResponse("User Does Not Exist")
+    
+    moderated_subreddit = moderatedSubreddit(username)
+    ismoderator = len(moderated_subreddit) > 0
     if request.user.is_authenticated():
         userposts = userVotedPosts(username, 1, request.user)
+        mypage = request.user == view_user
     else:
         userposts = userVotedPosts(username, 1)
-    return render(request, "user.html", {"posts" : userposts, "username" : username})
+    return render(request, "user.html", {"posts" : userposts, "username" : username,
+                                         "moderates" : moderated_subreddit, "mypage" : mypage,
+                                         "ismoderator" : ismoderator})
 
 def userDownvoted(request, username):
+    try:
+        view_user = get_user_model().objects.get(username = username)
+    except:
+        return HttpResponse("User Does Not Exist")
+    
+    moderated_subreddit = moderatedSubreddit(username)
+    ismoderator = len(moderated_subreddit) > 0
     if request.user.is_authenticated():
         userposts = userVotedPosts(username, -1, request.user)
+        mypage = request.user == view_user
     else:
         userposts = userVotedPosts(username, -1)
-    return render(request, "user.html", {"posts" : userposts, "username" : username})
+    return render(request, "user.html", {"posts" : userposts, "username" : username,
+                                         "moderates" : moderated_subreddit, "mypage" : mypage,
+                                         "ismoderator" : ismoderator})
 
 # def myaccount(request):
 #
@@ -237,3 +265,6 @@ def moderatedSubreddit(username):
     for r in qs:
         subrs.append(r.subreddit)
     return subrs
+
+def validate_username(username):
+    return re.compile('[a-z0-9_]+$').match(username)

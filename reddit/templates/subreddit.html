@@ -91,6 +91,43 @@
                 }
             });            
         }
+
+        function leave (obj)
+        {
+            $.ajax({type: "POST",
+                url: "{% url 'deletemod' %}",
+                data: { 
+                    subreddit: '{{ subreddit }}',
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success:function(data,status){
+                    if (data.success == true)
+                    {
+                        location.reload();
+                    }
+                }
+            });            
+        }
+
+        $(document).on('submit', '#addmod-form', function(){
+            $.ajax({ 
+                type: $(this).attr('method'), 
+                url: this.action, 
+                data: $(this).serialize(),
+                context: this,
+                success: function(data, status) {
+                    if(data.success){
+                        alert("Successfully Added");
+                        location.reload();
+                    }
+                    else{
+                        alert(data.Error);
+                    }
+                }
+            });
+            return false;
+        });
+
     </script>
 </head>
 
@@ -142,15 +179,32 @@
         <h5><span id=subscribers>{{num_subscribers}}</span> Subscribers</h5>
         {% if user.is_authenticated %}
         <h5><a class="btn btn-success btn-active" href={% url 'newpost' %}?subreddit={{ subreddit }}>Submit a new post</a></h5>
-            {% if subscribed %}
-            <h5><a class="btn btn-danger btn-active" onclick="unsubscribe(this)">Unsubscribe</a></h5>
+            {% if assignedmod %}
+                <h5><a class="btn btn-danger btn-active" onclick="leave(this)">Resign as Moderator</a></h5>
+            {% endif %}
+            {% if ismoderator %}
+                <h5>Add a Moderator</h5>
+                <form id="addmod-form" role="form" action="{% url 'addmod' %}" method="post">
+                    {% csrf_token %}
+                    <input type="text" class="form-control" name="username" id="username" placeholder="Enter Username">
+                    <input type="hidden" class="form-control" name="subreddit" id="subreddit" value="{{subreddit}}">
+                    <input type="submit" class="btn btn-info btn-active" value="ADD">  
+                </form>
             {% else %}
-            <h5><a class="btn btn-success btn-active" onclick="subscribe(this)">Subscribe</a></h5>
+                {% if subscribed %}
+                <h5><a class="btn btn-danger btn-active" onclick="unsubscribe(this)">Unsubscribe</a></h5>
+                {% else %}
+                <h5><a class="btn btn-success btn-active" onclick="subscribe(this)">Subscribe</a></h5>
+                {% endif %}
             {% endif %}
         {% else %}
         <h5><a data-toggle="modal" data-target="#myModal">Sign-in</a> to post</h5>
         <h5><a data-toggle="modal" data-target="#myModal">Subscribe</a></h5>
         {% endif %}
+        <h5>Moderators</h5>
+        {% for m in moderators %}
+                <li><a href={% url 'user' m %}>{{ m }}</a></li>
+        {% endfor %}
         <!-- <h4><strong>Rules:</strong></h4>
         <ul>
             {#

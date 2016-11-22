@@ -59,7 +59,6 @@
                     <li class="dropdown">
                         <a id="top" class="dropdown-toggle" data-toggle="dropdown">TOP</a>
                         <ul class="dropdown-menu">
-                            <li><a href={% url 'topfeed' "hour" %} "id="hour">Past Hour</a></li>
                             <li><a href={% url 'topfeed' "day" %} id="day">Past 24hrs</a></li>
                             <li><a href={% url 'topfeed' "week" %} id="week">Past Week</a></li>
                             <li><a href={% url 'topfeed' "month" %} id="month">Past Month</a></li>
@@ -89,7 +88,7 @@
         <h4>Popular Subreddits</h4>
         {% if user.is_authenticated %}
         <h5><a class="btn btn-success btn-active" href={% url 'newpost' %}>Submit a new post</a></h5>
-        <h5><a class="btn btn-success btn-active" href={% url 'addsubreddit' %}>Create a Subreddit</a></h5>
+        <h5><a class="btn btn-success btn-active" href={% url 'addsubredditform' %}>Create a Subreddit</a></h5>
         {% else %}
         <h5><a data-toggle="modal" data-target="#myModal">Sign-in</a> to post</h5>
         <h5><a data-toggle="modal" data-target="#myModal">Sign-in</a> to create a new subreddit</h5>

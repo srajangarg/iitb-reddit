@@ -124,7 +124,7 @@ def submitPost(request):
         link = request.POST['url']
         p = LinkPost(posted_by = request.user, posted_in=subreddit, title=title, link=link)
         p.save()
-    return HttpResponse("Posted")
+    return JsonResponse({'success' : True, 'Message' : "Posted"})
 
 def vote(request):
 
@@ -167,4 +167,7 @@ def submitComment(request):
         c = Comment(posted_by = request.user, text = reply, commented_on = p)
         c.save()
         return JsonResponse({'success' : True})
+    return JsonResponse({'success' : False, 'Error' : "Login to reply"})
+
+def deletePost(request):
     return JsonResponse({'success' : False})
