@@ -116,9 +116,9 @@
                     <h5 style="color:#049">Text</h5>
                     <input type="text" class="form-control" name="text" id="text" placeholder="Enter Text">
                 </div>
-                <input type="checkbox" id="timed" name="checks[]" value="yes" onclick="checka()">Timed Post?<br>
-                <input type="hidden" class="form-control" min="0" value="0" name="days" id="days" placeholder="Enter Days" style="display:inline;width: 33%">
-                <input type="hidden" class="form-control" min="0" value="0" name="hours" id="hours" placeholder="Enter Hours" style="display:inline; width: 33%">
+                <input type="checkbox" id="timed" name="timed[]" value="yes" onclick="checka()">Timed Post?<br>
+                <input type="hidden" class="form-control" min=0 max=7 value=0 name="days" id="days" placeholder="Enter Days" style="display:inline;width: 33%">
+                <input type="hidden" class="form-control" min=0 max=23 value=0 name="hours" id="hours" placeholder="Enter Hours" style="display:inline; width: 33%">
                 <input type="submit" class="btn btn-info btn-active" value="POST">  
             </form> 
         </div>
