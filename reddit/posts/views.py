@@ -67,6 +67,7 @@ def post(request, post_id):
     else:
         updatePostFeatures(p)
         comments = getComments(p, 0)
+        ismoderator = False
 
     archived = False
     if (timezone.now() > p.expires_on):
@@ -125,8 +126,10 @@ def submitPost(request):
             pass
     
     elif post_type == 'event':
-        time = request.POST['time']
+
         venue = request.POST['venue']
+        time = request.POST['time']
+        print time
         description = request.POST['description']
         p = Event(posted_by = request.user, posted_in=subreddit, title=title, time=time, venue=venue, description=description)
         p.expires_on = time
@@ -207,7 +210,7 @@ def deletePost(request):
 
         qs2 = Event.objects.filter(id=postId)
         if qs2.exists():
-            qs2.update(title=qs[0].title + " [cancelled]")
+            qs2.update(title=qs2[0].title + " [cancelled]")
             qs2.update(expires_on=timezone.now(), deleted=True)
 
         qs2 = Comment.objects.filter(id=postId)

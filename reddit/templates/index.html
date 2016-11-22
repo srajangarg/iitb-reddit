@@ -86,7 +86,7 @@
 
     <!-- Sidebar -->
     <div class="col-md-4 pull-right">
-        <h4>Popular Subreddits</h4>
+        <h4>Popular Subreddits to Subsribe</h4>
         {% for subr in popularsubreddits %}
             <li><a href={% url 'subreddit' subr %}>{{subr}}</a></li>
         {% endfor %}
@@ -94,10 +94,10 @@
         <h5><a class="btn btn-success btn-active" href={% url 'newpost' %}>Submit a new post</a></h5>
         <h5><a class="btn btn-success btn-active" href={% url 'addsubredditform' %}>Create a Subreddit</a></h5>
         {% else %}
-        <h5><a data-toggle="modal" data-target="#myModal">Sign-in</a> to post</h5>
-        <h5><a data-toggle="modal" data-target="#myModal">Sign-in</a> to create a new subreddit</h5>
+        <h5><a class="btn btn-success btn-active btn-sm" data-toggle="modal" data-target="#myModal">Sign-in</a> to post</h5>
+        <h5><a class="btn btn-success btn-active btn-sm" data-toggle="modal" data-target="#myModal">Sign-in</a> to create a new subreddit</h5>
         {% endif %}
-
+        {% if user.is_authenticated %}
         <br><h4>Upcoming Events from Subscribed Subreddits</h4>
         {% for e in events %}
         <div class="col-md-12">  
@@ -110,12 +110,11 @@
                     <p class="comments">Posted By: <a href={% url 'user' e.posted_by %} class="comments">{{e.posted_by}}</a> to <a href={% url 'subreddit' e.posted_in %} class="comments">{{e.posted_in}}</a></p>
                     <p class="comments" id="time">Time: {{e.time}}</p>
                     <p class="comments" id="time">Venue: {{e.venue}}</p>
-                    <p class="comments"><a href={% url 'post' e.id %} class="comments">{{e.num_comments}} 
-                    {% if e.num_comments < 2 %}comment{%else %}comments{%endif %}</a></p> 
                 </div>
             </div>
         </div>
-        {% endfor%}
+        {% endfor %}
+        {% endif %}
     </div>
 
     <!-- Main Content -->

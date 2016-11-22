@@ -35,6 +35,10 @@
                 document.getElementById('Expiry').style.display = 'block';
                 document.getElementById('Text').style.display = 'none';
                 document.getElementById('Event').style.display = 'none';
+
+                document.getElementById('url').required = true;
+                document.getElementById('time').required = false;
+                document.getElementById('venue').required = false;
             } 
             else if (document.getElementById('text').checked) 
             {
@@ -42,6 +46,10 @@
                 document.getElementById('Text').style.display = 'block';
                 document.getElementById('Expiry').style.display = 'block';
                 document.getElementById('Event').style.display = 'none';
+
+                document.getElementById('url').required = false;
+                document.getElementById('time').required = false;
+                document.getElementById('venue').required = false;
             }
             else 
             {
@@ -49,6 +57,10 @@
                 document.getElementById('Link').style.display = 'none';
                 document.getElementById('Expiry').style.display = 'none';
                 document.getElementById('Event').style.display = 'block';
+
+                document.getElementById('url').required = false;
+                document.getElementById('time').required = true;
+                document.getElementById('venue').required = true;
             }
 
         }
@@ -130,17 +142,17 @@
                 </div>
                 <div id="Event" style="display:none">
                     <h5 style="color:#049">Time : </h5>
-                    <input type="datetime-local" class="form-control" name="text" id="text" placeholder="DD/MM/YYYY HH:MM">
+                    <input type="datetime-local" class="form-control" name="time" id="time" placeholder="DD/MM/YYYY HH:MM">
                     <h5 style="color:#049">Venue : </h5>
-                    <input type="text" class="form-control" name="text" id="text" placeholder="Where">
+                    <input type="text" class="form-control" name="venue" id="venue" placeholder="Where">
                     <h5 style="color:#049">Description : </h5>
-                    <input type="text" class="form-control" name="text" id="text" placeholder="Describe the event">
+                    <input type="text" class="form-control" name="description" id="description" placeholder="Describe the event">
                 </div>
                 <div id="Expiry" style="display:block">
                     <input type="checkbox" id="timed" name="timed[]" value="yes" onclick="checka()">Timed Post?<br>
                     <div id="expirytime" style="visibility:hidden">
-                        <input type="number" class="form-control" min=0 max=100 value=1 name="days" id="days" placeholder="Enter Days" style="display:inline;width: 33%"> days
-                        <input type="number" class="form-control" min=0 max=23 value=0 name="hours" id="hours" placeholder="Enter Hours" style="display:inline; width: 33%"> hours
+                        <input type="number" class="form-control" min=0 max=100 value=1 name="days" id="days" placeholder="Enter Days" style="display:inline;width: 33%" required> days
+                        <input type="number" class="form-control" min=0 max=23 value=0 name="hours" id="hours" placeholder="Enter Hours" style="display:inline; width: 33%" required> hours
                     </div>
                 </div>
                 <input type="submit" class="btn btn-info btn-active" value="POST">  
