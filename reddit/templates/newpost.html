@@ -48,6 +48,20 @@
             });
         });
 
+        function checka ()
+        {
+            var x = document.getElementById("check").checked;
+            if (x)
+           {
+                document.getElementById("hours").type = "number";
+                document.getElementById("days").type = "number";
+           }
+           else
+           {
+                document.getElementById("hours").type = "hidden";
+                document.getElementById("days").type = "hidden";
+           }
+        }
     </script>
 </head>
 
@@ -101,6 +115,9 @@
                     <h5 style="color:#049">Text</h5>
                     <input type="text" class="form-control" name="text" id="text" placeholder="Enter Text">
                 </div>
+                <input type="checkbox" id="check" onclick="checka()">Timed Post?<br>
+                <input type="hidden" class="form-control" name="days" id="days" placeholder="Enter Days" style="display:inline;width: 33%">
+                <input type="hidden" class="form-control" name="hours" id="hours" placeholder="Enter Hours" style="display:inline; width: 33%">
                 <input type="submit" class="btn btn-info btn-active" value="POST">  
             </form> 
         </div>
