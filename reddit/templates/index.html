@@ -86,6 +86,9 @@
     <!-- Sidebar -->
     <div class="col-md-4 pull-right">
         <h4>Popular Subreddits</h4>
+        {% for subr in popularsubreddits %}
+            <li><a href={% url 'subreddit' subr %}>{{subr}}</a></li>
+        {% endfor %}
         {% if user.is_authenticated %}
         <h5><a class="btn btn-success btn-active" href={% url 'newpost' %}>Submit a new post</a></h5>
         <h5><a class="btn btn-success btn-active" href={% url 'addsubredditform' %}>Create a Subreddit</a></h5>

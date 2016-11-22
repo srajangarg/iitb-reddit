@@ -26,19 +26,27 @@ def index(request, subreddit_title):
         subscribed = False
     return render(request, "subreddit.html", {"subreddit" : subreddit, "posts" : posts, 
                                               "num_subscribers" : num_subscribers, "subscribed" : subscribed, 
-                                              "moderators" : moderators, "ismoderator" : ismoderator, 
+                                              "moderators" : moderators, "ismoderator" : ismoderator,
                                               "assignedmod" : assignedmod})
+
+
+def popularSubreddits(num=5, user = None):
+
+    subreddits = list(Subreddit.objects.all())
+    if(user != None):
+        subreddits = [subreddit for subreddit in subreddits if not checkSubscribed(user,subreddit)]
+    return sorted(subreddits, key = lambda s: subscribersCount(s), reverse=True)[:num]
 
 
 def feed(subreddit, user = None):
 
     posts = []
 
-    for p in LinkPost.objects.filter(posted_in = subreddit).extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0}, 
+    for p in LinkPost.objects.filter(posted_in = subreddit).extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
                                     select_params=('link',)):
         posts.append(updatePostFeatures(p, user))
 
-    for p in TextPost.objects.filter(posted_in = subreddit).extra(select = {'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0}, 
+    for p in TextPost.objects.filter(posted_in = subreddit).extra(select = {'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0},
                                     select_params = ('text',)):
         posts.append(updatePostFeatures(p, user))
 
@@ -80,7 +88,7 @@ def addSubreddit(request):
 
     if not request.user.is_authenticated() :
         return HttpResponse("Login to add a new subreddit!")
-    
+
     # some conditions for allowing to make a new subreddit
 
     if Subreddit.objects.filter(title=subreddit_title).exists():
@@ -110,7 +118,7 @@ def subscribe(request):
         return JsonResponse({'success' : False, 'Error' : "Subreddit Does not exist"})
 
     qs = Subscriber.objects.filter(redditer = request.user, subreddit=subreddit)
-    
+
     if qs.count() == 0:
         subs = Subscriber(redditer=request.user, subreddit=subreddit)
         subs.save()
@@ -130,9 +138,9 @@ def unsubscribe(request):
         subreddit = Subreddit.objects.get(title=subreddit_title)
     except:
         return JsonResponse({'success' : False, 'Error' : "Subreddit Does not exist"})
-    
+
     qs = Subscriber.objects.filter(redditer = request.user, subreddit=subreddit)
-    
+
     if qs.count() > 0:
         qs.delete()
 
@@ -149,14 +157,14 @@ def addModerator(request):
         newmod = get_user_model().objects.get(username=newmod_username)
     except:
         return JsonResponse({'success' : False, 'Error' : "User does not exist"})
-        
+
     try:
         subreddit = Subreddit.objects.get(title=subreddit_title)
     except:
         return JsonResponse({'success' : False, 'Error' : "Subreddit Does not exist"})
-    
+
     moderators = getModerators(subreddit)
-    
+
     if not request.user.is_authenticated():
         return JsonResponse({'success' : False, 'Error' : "Login to add!"})
     elif not request.user in moderators and not request.user.is_staff:
@@ -174,14 +182,14 @@ def delModerator(request):
         return redirect('index')
 
     subreddit_title = request.POST['subreddit']
-        
+
     try:
         subreddit = Subreddit.objects.get(title=subreddit_title)
     except:
         return JsonResponse({'success' : False, 'Error' : "Subreddit Does not exist"})
-    
+
     moderators = getModerators(subreddit)
-    
+
     if not request.user.is_authenticated():
         return JsonResponse({'success' : False, 'Error' : "Login to add!"})
     elif not request.user in moderators:
@@ -197,7 +205,7 @@ def delModerator(request):
 
 def assignNewModerator(subreddit):
 # TODO by garg
-    return    
+    return
 
 def validate_title(username):
     return re.compile('[A-Za-z0-9_]+$').match(username)
