@@ -43,8 +43,9 @@ def index(request, ranking = ""):
         posts = feed(ranking)
         popularsubreddits = popularSubreddits()
         events = getEvents()
+    searchSubreddits = [ str(s.title) for s in Subreddit.objects.all()]
     return render(request, "index.html", {"posts" : posts, "popularsubreddits" : popularsubreddits,
-                                          "events" : events})
+                                          "events" : events, "searchSubreddits" : searchSubreddits })
 
 top_sort_orders = ['','day', 'week', 'month','year','all']
 
@@ -58,7 +59,7 @@ def top(request, sort_type):
         return render(request,"index.html",{"posts" : posts})
     else:
         # TODO : redirect to some page saying lost!
-        print("lost")
+       return redirect('index')
 
 def login(request):
 
@@ -73,7 +74,6 @@ def login(request):
 
     else:
         return JsonResponse({'success' : False, 'Error' : "Invalid credentials"})
-
 
 def ldap_auth(email, password):
 
