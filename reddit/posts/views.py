@@ -142,8 +142,8 @@ def submitPost(request):
 
     if request.POST.getlist('timed[]'):
         print request.POST['days'], request.POST['hours']
-        p.expires_on = timezone.now() + timedelta(days=int(request.POST['days']), 
-                                                  hours=int(request.POST['hours']))  
+        p.expires_on = timezone.now() + timedelta(days=int(request.POST['days']),
+                                                  hours=int(request.POST['hours']))
     p.save()
     return JsonResponse({'success' : True, 'Message' : "Posted"})
 

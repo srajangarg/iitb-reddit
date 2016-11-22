@@ -24,8 +24,8 @@ def index(request, subreddit_title):
     else:
         posts = feed(subreddit)
         subscribed = False
-    return render(request, "subreddit.html", {"subreddit" : subreddit, "posts" : posts, 
-                                              "num_subscribers" : num_subscribers, "subscribed" : subscribed, 
+    return render(request, "subreddit.html", {"subreddit" : subreddit, "posts" : posts,
+                                              "num_subscribers" : num_subscribers, "subscribed" : subscribed,
                                               "moderators" : moderators, "ismoderator" : ismoderator,
                                               "assignedmod" : assignedmod})
 
@@ -195,17 +195,42 @@ def delModerator(request):
     elif not request.user in moderators:
         return JsonResponse({'success' : False, 'Error' : "Not a Mod!"})
 
+    if len(moderators) == 1:
+        if(not assignNewModerator(subreddit)):
+            return JsonResponse({'success': False, 'Error': "Only Mod Admin!"})
+
     qs = Moderator.objects.get(redditer=request.user, subreddit=subreddit)
     qs.delete()
 
-    if len(moderators) == 1:
-        assignNewModerator(subreddit)
-
     return JsonResponse({'success' : True})
 
+def getPostKarma(user, userPosts):
+    karma = 0
+    for p in userPosts:
+        karma += p.num_votes
+    return karma
+
+
 def assignNewModerator(subreddit):
-# TODO by garg
-    return
+    subscribers = Subscriber.objects.filter(subreddit=subreddit)
+    subredditPosts = feed(subreddit)
+    maxKarma = 0
+    newmod = None
+    for user in subscribers:
+        userPosts = [p for p in subredditPosts if p.posted_by == user.redditer]
+        karma = getPostKarma(user.redditer,userPosts)
+        if(maxKarma < karma):
+            newmod = user.redditer
+            maxKarma = karma
+        if newmod is None:
+            newmod = user.redditer
+
+    if newmod is None:
+        return False
+    else:
+        m = Moderator(redditer=newmod, subreddit=subreddit)
+        m.save()
+    return True
 
 def validate_title(username):
     return re.compile('[A-Za-z0-9_]+$').match(username)
