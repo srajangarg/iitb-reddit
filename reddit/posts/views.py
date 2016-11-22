@@ -4,6 +4,8 @@ from django.shortcuts import render, redirect
 from django.db.models import Sum
 from subreddits.models import Subreddit
 from .models import *
+from datetime import timedelta
+from django.utils import timezone
 
 def numComments(post):
     
@@ -83,13 +85,18 @@ def post(request, post_id):
             p = qs.get()
         else:
             return HttpResponse("No such post!")
+
     if request.user.is_authenticated(): 
         updatePostFeatures(p,request.user)
         comments = getComments(p, 0, request.user)
     else:
         updatePostFeatures(p)
         comments = getComments(p, 0)
-    return render(request, "post.html", {"post" : p, "comments" : comments})
+
+    archived = False
+    if (timezone.now() > p.expires_on):
+        archived = True
+    return render(request, "post.html", {"post" : p, "comments" : comments, "archived" : archived})
 
 def newPost(request):
 
@@ -123,7 +130,12 @@ def submitPost(request):
     else:
         link = request.POST['url']
         p = LinkPost(posted_by = request.user, posted_in=subreddit, title=title, link=link)
-        p.save()
+
+    if request.POST.getlist('timed[]'):
+        print request.POST['days'], request.POST['hours']
+        p.expires_on = timezone.now() + timedelta(days=int(request.POST['days']), 
+                                                  hours=int(request.POST['hours']))  
+    p.save()
     return JsonResponse({'success' : True, 'Message' : "Posted"})
 
 def vote(request):
