@@ -40,7 +40,7 @@ class LinkPost(Post):
     title = models.CharField('title', max_length=200)
     link = models.URLField('link', max_length=200)
     expires_on = models.DateTimeField('expires_on')
-    imgurl = models.URLField('imgurl', max_length=200, default = "")
+    imgurl = models.URLField('imgurl', max_length=200, default = "/static/images/a.png")
     site = models.CharField('site', max_length=50, default="Web")
     
     def __unicode__(self):
