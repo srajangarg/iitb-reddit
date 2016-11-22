@@ -78,13 +78,18 @@ def post(request, post_id):
         p = qs.get()
     else:
         qs = LinkPost.objects.filter(id = post_id)
-        print qs.count()
         if qs.count() == 1:
             qs = qs.extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0}, 
                                     select_params=('link',))
             p = qs.get()
         else:
-            return HttpResponse("No such post!")
+            qs = Event.objects.filter(id = post_id)
+            if qs.count() == 1:
+                qs = qs.extra(select={'num_votes' : 0, 'num_comments' : 0, 'type' : '%s', 'vote' : 0}, 
+                                        select_params=('event',))
+                p = qs.get()
+            else:
+                return HttpResponse("No such post!")
 
     if request.user.is_authenticated(): 
         updatePostFeatures(p,request.user)
@@ -127,16 +132,22 @@ def submitPost(request):
         text = request.POST['text']
         p = TextPost(posted_by = request.user, posted_in=subreddit, title=title, text=text)
         p.save()
-    else:
+    elif post_type == 'link':
         link = request.POST['url']
         p = LinkPost(posted_by = request.user, posted_in=subreddit, title=title, link=link)
+    elif post_type == 'event':
+        time = request.POST['time']
+        venue = request.POST['venue']
+        description = request.POST['description']
+        p = Event(posted_by = request.user, posted_in=subreddit, title=title, time=time, venue=venue, description=description)
+        p.expires_on = time
 
-    if request.POST.getlist('timed[]'):
+    if request.POST.getlist('timed[]') and (post_type == 'text' or post_type == 'link'):
         print request.POST['days'], request.POST['hours']
         p.expires_on = timezone.now() + timedelta(days=int(request.POST['days']), 
                                                   hours=int(request.POST['hours']))  
     p.save()
-    return JsonResponse({'success' : True, 'Message' : "Posted"})
+    return JsonResponse({'success' : True, 'Message' : "Posted", 'postID' : p.id})
 
 def vote(request):
 
@@ -175,6 +186,9 @@ def submitComment(request):
     if request.user.is_authenticated():
         comment_on_id = request.POST['comment_on']
         reply = request.POST['reply']
+        if not Posts.objects.filter(id=comment_on_id).exists():
+            return JsonResponse({'success' : False, 'Error' : "No such post exists"})
+            
         p = Post.objects.get(id = comment_on_id)
         c = Comment(posted_by = request.user, text = reply, commented_on = p)
         c.save()
@@ -182,4 +196,29 @@ def submitComment(request):
     return JsonResponse({'success' : False, 'Error' : "Login to reply"})
 
 def deletePost(request):
-    return JsonResponse({'success' : False})
+
+    if request.method == 'GET':
+        return redirect('index')
+    
+    if request.user.is_authenticated():
+        postId = request.POST['postId']
+        if not Posts.objects.filter(id=postId).exists():
+            return JsonResponse({'success' : False, 'Error' : "No such post exists"})
+        
+        qs = Posts.objects.filter(id=postId)
+        if qs[0].deleted:
+            return JsonResponse({'success' : False, 'Error' : "Alreday deleted"})
+            
+        qs.update(expires_on=timezone.now(), deleted=True)
+        
+        if TextPost.objects.filter(id=postId).exists():
+            qs.update(title="[deleted]", text="[deleted]")
+
+        if LinkPost.objects.filter(id=postId).exists():
+            qs.update(title="[deleted]", link="")
+
+        if Event.objects.filter(id=postId).exists():
+            qs.update(title=qs[0].title + " [cancelled]")
+
+        return JsonResponse({'success' : True})
+    return JsonResponse({'success' : False, 'Error' : "Login to delete"})

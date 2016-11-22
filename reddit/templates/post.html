@@ -10,7 +10,8 @@
         var numVotes = [];
         voteStatus[{{post.id}}] = {{post.vote}}
         numVotes[{{post.id}}] = {{post.num_votes}}
-        {% for c in comments %}''            voteStatus[{{c.id}}] = {{c.vote}}
+        {% for c in comments %}
+            voteStatus[{{c.id}}] = {{c.vote}}
             numVotes[{{c.id}}] = {{c.num_votes}}
         {% endfor %}
 
@@ -117,7 +118,7 @@
             <img src={% static "images/a.png" %} style="width:60px;height:60px;">
         </div>
         <div class="col-md-9">
-            {% if post.type == 'text' %}
+            {% if post.type == 'text' or post.type == 'event' %}
             {{post.title}} 
             {% else %}
             <a href={{post.link}}>{{post.title}}</a>
@@ -129,7 +130,14 @@
         </div>
         <br>
         <div class="col-md-8 col-md-offset-2">
+        {% if post.type == text %}
             {{post.text}}
+        {% elif post.type == event %}
+            Time : {{post.time}}<br>
+            Venue : {{post.venue}}<br>
+            {{post.description}}
+        {% endif %}
+
         </div>
         <div class="col-md-12 col-md-offset-2">
             <!-- <form role="form" action="{% url 'signup' %}" method="post" class="form-inlinehorizontal"> -->

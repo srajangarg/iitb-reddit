@@ -13,6 +13,7 @@ class Post(models.Model):
     created_on = models.DateTimeField('created_on', auto_now_add=True)
     posted_by = models.ForeignKey(Redditer)
     expires_on = models.DateTimeField('expires_on', default=timezone.now() + timedelta(days=150))
+    deleted = models.BooleanField('deleted', default=False)
 
     def __unicode__(self):
         try:

@@ -3,7 +3,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import ugettext_lazy as _
 
 # Register your models here.
-from .models import Redditer, Moderator
+from .models import *
 from .forms import RedditerChangeForm, RedditerCreationForm
 
 class RedditerAdmin(UserAdmin):
@@ -29,7 +29,11 @@ class RedditerAdmin(UserAdmin):
     search_fields = ('email', 'username')
 
 class ModeratorAdmin(admin.ModelAdmin):
-	list_display = ('redditer', 'subreddit')
+    list_display = ('redditer', 'subreddit')
+
+class SubscriberAdmin(admin.ModelAdmin):
+    list_display = ('redditer', 'subreddit')
 
 admin.site.register(Redditer, RedditerAdmin)
 admin.site.register(Moderator, ModeratorAdmin)
+admin.site.register(Subscriber, SubscriberAdmin)

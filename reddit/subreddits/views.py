@@ -1,10 +1,11 @@
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import get_user_model
 from django.shortcuts import render, redirect
+from django.utils import timezone
 import re
 from .models import *
 from users.models import Subscriber, Moderator
-from posts.models import TextPost, LinkPost, Comment, Vote
+from posts.models import *
 from posts.views import updatePostFeatures
 
 def index(request, subreddit_title):
@@ -58,9 +59,9 @@ def getEvents(subreddit, user=None):
     
     events = []
 
-    for e in Events.objects.filter(posted_in=subreddit):
-        # TODO: check not expired
-        posts.append(updatePostFeatures(e, user))
+    for e in Event.objects.filter(posted_in=subreddit):
+        if timezone.now() > e.time:
+            events.append(updatePostFeatures(e, user))
 
     return sorted(events, key=lambda e: e.time, reverse=True)
 
