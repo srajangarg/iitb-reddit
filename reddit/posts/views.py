@@ -135,7 +135,7 @@ def submitPost(request):
         p.expires_on = time
 
     p.save()
-    return JsonResponse({'success' : True, 'Message' : "Posted", 'postID' : p.id})
+    return JsonResponse({'success' : True, 'Message' : "Posted", 'postId' : p.id})
 
 def vote(request):
 

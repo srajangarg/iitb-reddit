@@ -172,7 +172,7 @@
             <!-- <form role="form" action="{% url 'signup' %}" method="post" class="form-inlinehorizontal"> -->
             <!-- {% csrf_token %} -->
                 <input type="hidden" name="comment_on" id="comment_on" value="{{post.id}}">
-                <textarea type="text" class="form-control" name="reply" id="reply" {% if  archived %}readonly{% endif %} placeholder={% if  archived %}"Post has been Archived"{% else %}"Write a Comment"{% endif %}></textarea>
+                <textarea type="text" class="form-control" name="reply" id="reply" {% if  archived %}readonly{% endif %} placeholder={% if  archived %}"Post has been Archived"{% else %}"Write a Comment"{% endif %} required></textarea>
                 {% if not archived %}
                 {% if user.is_authenticated %}
                 <input type="submit" class="btn btn-info btn-active btn-xs" onclick="postreply(this, {{post.id}})" value="POST">
@@ -231,7 +231,7 @@
                 <input type="hidden" name="comment_on" id="comment_on" value="{{c.id}}">
                 <textarea type="text" class="form-control" name="reply" id="reply" placeholder="Post a reply"></textarea>
                 {% if user.is_authenticated%}
-                <input type="submit" class="btn btn-info btn-active btn-xs" onclick="postreply(this, {{c.id}})" value="POST"> {% else %}
+                <input type="submit" class="btn btn-info btn-active btn-xs" onclick="postreply(this, {{c.id}})" value="POST" required> {% else %}
                 <input class="btn btn-info btn-active btn-xs" data-toggle="modal" data-target="#myModal" value="Login to Comment">
                 {% endif %}
                 <!-- </form><br> -->

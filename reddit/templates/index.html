@@ -3,7 +3,9 @@
 {% load staticfiles %}
 <head>
     <link rel="stylesheet" href={% static "css/bootstrap.css" %}>
+    <link rel="stylesheet" href={% static "css/jquery-ui.css" %}>
     <script type="text/javascript" src={% static "js/jquery.1.11.1.js" %}></script>
+    <script type="text/javascript" src={% static "js/jquery-ui.js" %}></script>
     <script type="text/javascript" src={% static "js/async-form.js" %}></script>
     <script type="text/javascript">
         var voteStatus = [];
@@ -12,6 +14,18 @@
             voteStatus[{{p.id}}] = {{p.vote}}
             numVotes[{{p.id}}] = {{p.num_votes}}
         {% endfor %}
+
+        $( function() {
+            var searchSubreddits = {{ searchSubreddits|safe }};
+            $("#subreddit").autocomplete({
+                source: searchSubreddits,
+                    // messages: {
+                    //     noResults: '',
+                    //     results: function() {}
+                    // }
+            });
+        });
+
 
         function vote (obj, id, type) {
             $.ajax({type: "POST",
@@ -41,6 +55,11 @@
                     }
                 }
             });
+        }
+
+        function searchsub (obj) {
+            var x = obj.previousElementSibling.value;
+            window.location = "/subreddits/" + x;
         }
     </script>
 </head>
@@ -86,6 +105,8 @@
 
     <!-- Sidebar -->
     <div class="col-md-4 pull-right">
+
+        <!-- </form> -->
         <h4>Popular Subreddits to Subsribe</h4>
         {% for subr in popularsubreddits %}
             <li><a href={% url 'subreddit' subr %}>{{subr}}</a></li>
@@ -97,24 +118,26 @@
         <h5><a class="btn btn-success btn-active btn-sm" data-toggle="modal" data-target="#myModal">Sign-in</a> to post</h5>
         <h5><a class="btn btn-success btn-active btn-sm" data-toggle="modal" data-target="#myModal">Sign-in</a> to create a new subreddit</h5>
         {% endif %}
-        {% if user.is_authenticated %}
+        <input type="text" class="form-control ui-autocomplete-input" name="subreddit" id="subreddit" placeholder="Guess a subreddit!">
+        <button onclick="searchsub(this)" class="btn btn-danger" type="button">
+            <span class=" glyphicon glyphicon-search"></span>
+        </button>
         <br><h4>Upcoming Events from Subscribed Subreddits</h4>
         {% for e in events %}
-        <div class="col-md-12">  
+        <div class="col-md-12">
             <div class="row">
                 <div class="col-md-2">
                     <img src={% static "images/a.png" %} style="width:60px;height:60px;">
                 </div>
                 <div class="col-md-9 col-md-offset-1">
-                    <a href={% url 'post' e.id %}>{{e.title}}</a> 
+                    <a href={% url 'post' e.id %}>{{e.title}}</a>
                     <p class="comments">Posted By: <a href={% url 'user' e.posted_by %} class="comments">{{e.posted_by}}</a> to <a href={% url 'subreddit' e.posted_in %} class="comments">{{e.posted_in}}</a></p>
                     <p class="comments" id="time">Time: {{e.time}}</p>
                     <p class="comments" id="time">Venue: {{e.venue}}</p>
                 </div>
             </div>
         </div>
-        {% endfor %}
-        {% endif %}
+        {% endfor%}
     </div>
 
     <!-- Main Content -->
