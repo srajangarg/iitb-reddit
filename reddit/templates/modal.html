@@ -10,19 +10,19 @@
                     <h5 style="color:#049">CREATE ACCOUNT</h5>
                     <form role="form" action="{% url 'signup' %}" method="post" id="signup-form">
                     {% csrf_token %}
-                        <input type="text" class="form-control" name="username" id="username" placeholder="Enter Username">
-                        <input type="password" class="form-control" name="password" id="password" placeholder="Enter Reddit Password">
-                        <input type="text" class="form-control" name="email" id="email" placeholder="Enter LDAP Email">
-                        <input type="password" class="form-control" name="ldappass" id="ldappass" placeholder="Enter LDAP Password">
-                        <input type="submit" class="btn btn-info btn-active" value="CREATE">    
+                        <input type="text" class="form-control" name="username" id="username" placeholder="Enter Username" required>
+                        <input type="password" class="form-control" name="password" id="password" placeholder="Enter Reddit Password" required>
+                        <input type="text" class="form-control" name="email" id="email" placeholder="Enter LDAP Email" required>
+                        <input type="password" class="form-control" name="ldappass" id="ldappass" placeholder="Enter LDAP Password" required>
+                        <input type="submit" class="btn btn-info btn-active" value="CREATE">
                     </form>
                 </div>
                 <div class="col-md-6">
                     <h5 style="color:#049">LOGIN</h5>
                     <form role="form" action="{% url 'login' %}" method="post" id="login-form">
                     {% csrf_token %}
-                        <input type="text" class="form-control" name="username" id="username" placeholder="Enter Username">
-                        <input type="password" class="form-control" name="password" id="password" placeholder="Enter Password">
+                        <input type="text" class="form-control" name="username" id="username" placeholder="Enter Username" required>
+                        <input type="password" class="form-control" name="password" id="password" placeholder="Enter Password" required>
                         <input type="submit" class="btn btn-info btn-active" value="LOGIN">
                     </form>
                 </div>

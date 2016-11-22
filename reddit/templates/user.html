@@ -16,7 +16,7 @@
         function vote (obj, id, type) {
             $.ajax({type: "POST",
                 url: "{% url 'vote' %}",
-                data: { 
+                data: {
                     action: type,
                     postId: id,
                     status: voteStatus[id],
@@ -72,7 +72,7 @@
         </div>
     </div>
     <br>
-    
+
      <!-- Modal (Login Pop up) -->
     {% include "modal.html" %}
     <br>
@@ -92,7 +92,7 @@
 
     <!-- Main Content -->
     {% for p in posts %}
-       <div class="col-md-8">  
+       <div class="col-md-8">
             <div class="col-md-1" data-toggle="tooltip" {% if user.is_authenticated %} title="Click to Vote" {% else %} title="Login to Vote" {% endif %}>
                 <span id="upvote" onclick="vote(this, {{p.id}}, 1)" {% if user.is_authenticated %} class="glyphicon glyphicon-arrow-up" {% else %} class="glyphicon glyphicon-arrow-up disabled" {% endif %} {% if p.vote == 1 %} style="color:green" {% else %} style="color:silver"{% endif %} aria-hidden="true"></span>
                 <center>
@@ -115,14 +115,14 @@
                 {% endif %}
                 <p class="comments">Posted By: <a href={% url 'user' p.posted_by %} class="comments">{{p.posted_by}}</a> to <a href={% url 'subreddit' p.posted_in %} class="comments">{{p.posted_in}}</a></p>
                 <p class="comments" id="time">{{p.created_on}}</p>
-                <p class="comments"><a href={% url 'post' p.id %} class="comments">{{p.num_comments}} 
-                {% if p.num_comments < 2 %}comment{%else %}comments{%endif %}</a> points</p> 
+                <p class="comments"><a href={% url 'post' p.id %} class="comments">{{p.num_comments}}
+                {% if p.num_comments < 2 %}comment{%else %}comments{%endif %}</a> points</p>
 
             </div>
         </div>
     {% endfor%}
 
-    
+
     <script type="text/javascript" src={% static "js/bootstrap.js" %}></script>
 </body>
 </html>
