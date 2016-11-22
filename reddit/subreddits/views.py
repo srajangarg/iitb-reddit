@@ -17,6 +17,7 @@ def index(request, subreddit_title):
     num_subscribers = subscribersCount(subreddit)
     moderators = getModerators(subreddit)
     ismoderator = request.user in moderators or request.user.is_staff
+    assignedmod = request.user in moderators
     if request.user.is_authenticated():
         subscribed = checkSubscribed(request.user, subreddit)
         posts = feed(subreddit, request.user)
@@ -25,7 +26,8 @@ def index(request, subreddit_title):
         subscribed = False
     return render(request, "subreddit.html", {"subreddit" : subreddit, "posts" : posts, 
                                               "num_subscribers" : num_subscribers, "subscribed" : subscribed, 
-                                              "moderators" : moderators, "ismoderator" : ismoderator})
+                                              "moderators" : moderators, "ismoderator" : ismoderator, 
+                                              "assignedmod" : assignedmod})
 
 
 def feed(subreddit, user = None):
@@ -141,10 +143,10 @@ def addModerator(request):
         return redirect('index')
 
     subreddit_title = request.POST['subreddit']
-    newmod_username = request.Post['username']
+    newmod_username = request.POST['username']
 
     try:
-        newmod = get_user_model().objects.filter(username=newmod_username)
+        newmod = get_user_model().objects.get(username=newmod_username)
     except:
         return JsonResponse({'success' : False, 'Error' : "User does not exist"})
         
@@ -157,7 +159,7 @@ def addModerator(request):
     
     if not request.user.is_authenticated():
         return JsonResponse({'success' : False, 'Error' : "Login to add!"})
-    elif not request.user in moderators:
+    elif not request.user in moderators and not request.user.is_staff:
         return JsonResponse({'success' : False, 'Error' : "Only current mods can add a new mod!"})
     elif newmod in moderators:
         return JsonResponse({'success' : False, 'Error' : "Already a mod!"})
@@ -185,7 +187,7 @@ def delModerator(request):
     elif not request.user in moderators:
         return JsonResponse({'success' : False, 'Error' : "Not a Mod!"})
 
-    qs = Moderator.objecs.get(redditer=request.user, subreddit=subreddit)
+    qs = Moderator.objects.get(redditer=request.user, subreddit=subreddit)
     qs.delete()
 
     if len(moderators) == 1:

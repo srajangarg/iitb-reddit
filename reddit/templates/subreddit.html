@@ -128,10 +128,6 @@
             return false;
         });
 
-        function userinput ()
-        {
-            document.getElementById("addmod-form").display = "block";
-        }
     </script>
 </head>
 
@@ -183,10 +179,12 @@
         <h5><span id=subscribers>{{num_subscribers}}</span> Subscribers</h5>
         {% if user.is_authenticated %}
         <h5><a class="btn btn-success btn-active" href={% url 'newpost' %}?subreddit={{ subreddit }}>Submit a new post</a></h5>
-            {% if ismoderator %}
+            {% if assignedmod %}
                 <h5><a class="btn btn-danger btn-active" onclick="leave(this)">Resign as Moderator</a></h5>
-                <h5><a class="btn btn-success btn-active" onclick="userinput(this)">Add a Moderator</a></h5>
-                <form id="addmod-form" role="form" action="{% url 'addmod' %}" method="post" style="display:hidden">
+            {% endif %}
+            {% if ismoderator %}
+                <h5>Add a Moderator</h5>
+                <form id="addmod-form" role="form" action="{% url 'addmod' %}" method="post">
                     {% csrf_token %}
                     <input type="text" class="form-control" name="username" id="username" placeholder="Enter Username">
                     <input type="hidden" class="form-control" name="subreddit" id="subreddit" value="{{subreddit}}">

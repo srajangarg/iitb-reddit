@@ -167,4 +167,7 @@ def submitComment(request):
         c = Comment(posted_by = request.user, text = reply, commented_on = p)
         c.save()
         return JsonResponse({'success' : True})
+    return JsonResponse({'success' : False, 'Error' : "Login to reply"})
+
+def deletePost(request):
     return JsonResponse({'success' : False})

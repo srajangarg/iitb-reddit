@@ -122,13 +122,15 @@ def user(request, username):
         return HttpResponse("User Does Not Exist")
     
     moderated_subreddit = moderatedSubreddit(username)
+    ismoderator = len(moderated_subreddit) > 0
     if request.user.is_authenticated():
         userposts = userPosts(username, request.user)
         mypage = request.user == view_user
     else:
         userposts = userPosts(username)
     return render(request, "user.html", {"posts" : userposts, "username" : username, 
-                                         "moderates" : moderated_subreddit, "mypage" : mypage})
+                                         "moderates" : moderated_subreddit, "mypage" : mypage, 
+                                         "ismoderator" : ismoderator})
     
 
 def userUpvoted(request, username):
@@ -138,13 +140,15 @@ def userUpvoted(request, username):
         return HttpResponse("User Does Not Exist")
     
     moderated_subreddit = moderatedSubreddit(username)
+    ismoderator = len(moderated_subreddit) > 0
     if request.user.is_authenticated():
         userposts = userVotedPosts(username, 1, request.user)
         mypage = request.user == view_user
     else:
         userposts = userVotedPosts(username, 1)
     return render(request, "user.html", {"posts" : userposts, "username" : username, 
-                                         "moderates" : moderated_subreddit, "mypage" : mypage})
+                                         "moderates" : moderated_subreddit, "mypage" : mypage, 
+                                         "ismoderator" : ismoderator})
 
 def userDownvoted(request, username):
     try:
@@ -153,13 +157,15 @@ def userDownvoted(request, username):
         return HttpResponse("User Does Not Exist")
     
     moderated_subreddit = moderatedSubreddit(username)
+    ismoderator = len(moderated_subreddit) > 0
     if request.user.is_authenticated():
         userposts = userVotedPosts(username, -1, request.user)
         mypage = request.user == view_user
     else:
         userposts = userVotedPosts(username, -1)
     return render(request, "user.html", {"posts" : userposts, "username" : username, 
-                                         "moderates" : moderated_subreddit, "mypage" : mypage})
+                                         "moderates" : moderated_subreddit, "mypage" : mypage, 
+                                         "ismoderator" : ismoderator})
 
 # def myaccount(request):
 #
