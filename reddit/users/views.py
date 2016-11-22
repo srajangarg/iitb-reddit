@@ -9,7 +9,7 @@ from posts.views import updatePostFeatures
 import calendar, ldap
 from datetime import datetime, timedelta
 from math import log
-
+import re 
 # make this date timezone aware
 epoch = timezone.make_aware(datetime(1970, 1, 1), timezone.get_current_timezone())
 
@@ -95,6 +95,9 @@ def signup(request):
         if get_user_model().objects.filter(email=email).exists():
             return JsonResponse({'success' : False, 'Error' : "LDAP already in use"})
         
+        username = username.strip()
+        if not validate_username(username):
+            return JsonResponse({'success' : False, 'Error' : "Username should contain only a-z0-9_"})
         if get_user_model().objects.filter(username=username).exists():
             return JsonResponse({'success' : False, 'Error' : "Username already taken up"})
 
@@ -237,3 +240,6 @@ def moderatedSubreddit(username):
     for r in qs:
         subrs.append(r.subreddit)
     return subrs
+
+def validate_username(username):
+    return re.compile('[a-z0-9_]+$').match(username)

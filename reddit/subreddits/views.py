@@ -60,12 +60,20 @@ def checkSubscribed(user, subreddit):
     else:
         return False
 
+def addSubredditForm(request):
+    if request.user.is_authenticated():
+        return render(request, "newsubreddit.html")
+    else:
+        return HttpResponse("Login to post!")
 
 def addSubreddit(request):
 
     if request.method == 'GET':
         return redirect('index')
     subreddit_title = request.POST['subreddit']
+    if not validate_title(subreddit):
+        return JsonResponse({'success' : False, 'Error' : "Subreddit Title should contain only A-Za-z0-9_"})
+
     description = request.POST['description']
 
     if not request.user.is_authenticated() :
@@ -189,3 +197,5 @@ def assignNewModerator(subreddit):
 # TODO by garg
     return    
 
+def validate_title(username):
+    return re.compile('[A-Za-z0-9_]+$').match(username)
