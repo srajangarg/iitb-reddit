@@ -194,7 +194,7 @@
                 <h5>Add a Moderator</h5>
                 <form id="addmod-form" role="form" action="{% url 'addmod' %}" method="post">
                     {% csrf_token %}
-                    <input type="text" class="form-control" name="username" id="username" placeholder="Enter Username">
+                    <input type="text" class="form-control" name="username" id="username" placeholder="Enter Username" required>
                     <input type="hidden" class="form-control" name="subreddit" id="subreddit" value="{{subreddit}}">
                     <input type="submit" class="btn btn-info btn-active" value="ADD">
                 </form>
