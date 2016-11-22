@@ -41,6 +41,42 @@
                 }
             });
         }
+
+        $(document).on('submit', '#login-form', function(){
+            $.ajax({ 
+                type: $(this).attr('method'), 
+                url: this.action, 
+                data: $(this).serialize(),
+                context: this,
+                success: function(data, status) {
+                    if(data.success){
+                        location.reload();
+                    }
+                    else{
+                        alert(data.Error);
+                    }
+                }
+            });
+            return false;
+        });
+
+        $(document).on('submit', '#signup-form', function(){
+            $.ajax({ 
+                type: $(this).attr('method'), 
+                url: this.action, 
+                data: $(this).serialize(),
+                context: this,
+                success: function(data, status) {
+                    if(data.success){
+                        location.reload();
+                    }
+                    else{
+                        alert(data.Error);
+                    }
+                }
+            });
+            return false;
+        });
     </script>
 </head>
 
@@ -80,42 +116,7 @@
     </div>
 
     <!-- Modal (Login Pop up) -->
-    <div id="myModal" class="modal" role="dialog" tabindex='-1'>
-    <center>
-        <div class="modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="col-md-6" style="border-right: 1px solid #ddd;">
-                    <h5 style="color:#049">CREATE ACCOUNT</h5>
-                    <form role="form" action="{% url 'signup' %}" method="post">
-                    {% csrf_token %}
-                        <input type="text" class="form-control" name="username" id="username" placeholder="Enter Username">
-                        <input type="password" class="form-control" name="password" id="password" placeholder="Enter Reddit Password">
-                        <input type="text" class="form-control" name="email" id="email" placeholder="Enter LDAP Email">
-                        <input type="password" class="form-control" name="ldappass" id="ldappass" placeholder="Enter LDAP Password">
-                        <input type="submit" class="btn btn-info btn-active" value="CREATE">    
-                    </form>
-                </div>
-                <div class="col-md-6">
-                    <h5 style="color:#049">LOGIN</h5>
-                    <form role="form" action="{% url 'login' %}" method="post">
-                    {% csrf_token %}
-                        <input type="text" class="form-control" name="username" id="username" placeholder="Enter Username">
-                        <input type="text" class="form-control" name="password" id="password" placeholder="Enter Password">
-                        <input type="submit" class="btn btn-info btn-active" value="LOGIN">
-                    </form>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <!-- <button type="button" class="btn btn-default" data-dismiss="modal">Close</button> -->
-            </div>
-        </div>
-        </div>
-    </center>
-    </div>
+    {% include "modal.html" %}
     <br>
 
     <!-- Sidebar -->

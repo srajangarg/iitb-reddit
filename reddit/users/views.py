@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import get_user_model, authenticate, login as auth_login, logout as auth_logout
 from django.shortcuts import render, redirect
 from django.utils import timezone
@@ -9,6 +9,8 @@ from posts.views import updatePostFeatures
 import calendar, ldap
 from datetime import datetime, timedelta
 from math import log
+import json
+
 # make this date timezone aware
 epoch = timezone.make_aware(datetime(1970, 1, 1), timezone.get_current_timezone())
 
@@ -55,9 +57,10 @@ def login(request):
     user = authenticate(username=username, password=password)
     if user is not None:
         auth_login(request, user)
-        return redirect('index')
+        return JsonResponse({'success' : True})
+
     else:
-        return HttpResponse("Invalid credentials")
+        return JsonResponse({'success' : False, 'Error' : "Invalid credentials"})
 
 
 def ldap_auth(email, password):
@@ -92,9 +95,10 @@ def signup(request):
     if ldap_auth(email, ldappass):
         user = get_user_model().objects.create_user(username, email, password)
         if user is not None:
-            return HttpResponse("Successfully Signed Up!")
+            auth_login(request, user)
+            return JsonResponse({'success' : True})
 
-    return HttpResponse("Can't sign Up!")
+    return JsonResponse({'success' : False, 'Error' : "Invalid credentials"})
 
 def logout(request):
 
