@@ -21,7 +21,10 @@ class Post(models.Model):
             try:
                 return self.linkpost.__unicode__()
             except:
-                return self.comment.__unicode__()
+                try:
+                    return self.event.__unicode__()
+                except:
+                    return self.comment.__unicode__()
 
 class TextPost(Post):
 
