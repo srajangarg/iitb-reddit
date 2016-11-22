@@ -227,13 +227,17 @@
                 <span id="downvote" onclick="vote(this, {{p.id}}, -1)" {% if user.is_authenticated %} class="glyphicon glyphicon-arrow-down" {% else %} class="glyphicon glyphicon-arrow-down disabled" {% endif %} {% if p.vote == -1 %} style="color:red"  {% else %} style="color:silver" {% endif %} aria-hidden="true"></span>
             </div>
             <div class="col-md-2">
-                <img src={% static "images/a.png" %} style="width:60px;height:60px;">
+            {% if p.type == 'text' %}
+            <img src={% static "images/a.png" %} style="width:80px">
+            {% else %}
+            <img src={{ p.imgurl }} style="width:80px">
+            {% endif %}
             </div>
             <div class="col-md-9">
                 {% if p.type == 'text' %}
-                <a href={% url 'post' p.id %}>{{p.title}}</a> 
+                <a href={% url 'post' p.id %}>{{p.title}}</a>  | {{p.site}}
                 {% else %}
-                <a href={{p.link}}>{{p.title}}</a>
+                <a href={{p.link}}>{{p.title}}</a> | {{p.site}}
                 {% endif %}
                 <p class="comments">Posted By: <a href={% url 'user' p.posted_by %} class="comments">{{p.posted_by}}</a> to <a href={% url 'subreddit' p.posted_in %} class="comments">{{p.posted_in}}</a></p>
                 <p class="comments" id="time">{{p.created_on}}</p>

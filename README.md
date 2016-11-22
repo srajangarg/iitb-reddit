@@ -26,6 +26,7 @@ sudo apt-get install libsasl2-dev
 sudo apt-get install python-ldap
 sudo pip install psycopg2==2.6
 sudo pip install django-autofixture
+sudo pip install opengraph
 ```
 
 ### Setting up Postgres Database

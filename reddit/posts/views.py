@@ -6,6 +6,7 @@ from subreddits.models import Subreddit
 from .models import *
 from datetime import timedelta
 from django.utils import timezone
+import opengraph
 
 def numComments(post):
     
@@ -126,10 +127,18 @@ def submitPost(request):
     if post_type == 'text':
         text = request.POST['text']
         p = TextPost(posted_by = request.user, posted_in=subreddit, title=title, text=text)
-        p.save()
+
     else:
+
         link = request.POST['url']
         p = LinkPost(posted_by = request.user, posted_in=subreddit, title=title, link=link)
+
+        try:
+            metadata = opengraph.OpenGraph(url=link)
+            p.imgurl = metadata["image"]
+            p.site = metadata["site_name"]
+        except:
+            pass
 
     if request.POST.getlist('timed[]'):
         print request.POST['days'], request.POST['hours']
