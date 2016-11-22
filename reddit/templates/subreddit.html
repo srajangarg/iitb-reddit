@@ -109,7 +109,7 @@
             });            
         }
 
-        function delete (obj,pid)
+        function deletep (obj,pid)
         {
             $.ajax({type: "POST",
                 url: "{% url 'deletepost' %}",
@@ -271,7 +271,7 @@
                 <p class="comments"><a href={% url 'post' p.id %} class="comments">{{p.num_comments}} 
                 {% if p.num_comments < 2 %}comment{%else %}comments{%endif %}</a> points</p>
                 {% if ismoderator %}
-                <p><a onclick="delete(this, {{p.id}})">delete post</a></p>
+                <p><a onclick="deletep(this, {{p.id}})">delete post</a></p>
                 {% endif %}
             </div>
         </div>

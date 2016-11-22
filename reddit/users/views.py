@@ -286,8 +286,8 @@ def getEvents(user=None):
     events = []
 
     for e in Event.objects.all():
-        if timezone.now() > e.time and checkSubscribed(user=user, subreddit=e.posted_in):
-            events.append(updatePostFeatures(e, user))
+        if timezone.now() < e.time and checkSubscribed(user=user, subreddit=e.posted_in):
+            events.append(e)
 
     return sorted(events, key=lambda e: e.time, reverse=True)
 

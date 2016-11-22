@@ -60,7 +60,7 @@ def getEvents(subreddit, user=None):
     events = []
 
     for e in Event.objects.filter(posted_in=subreddit):
-        if timezone.now() > e.time:
+        if timezone.now() < e.time:
             events.append(updatePostFeatures(e, user))
 
     return sorted(events, key=lambda e: e.time, reverse=True)

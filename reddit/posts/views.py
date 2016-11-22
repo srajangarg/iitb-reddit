@@ -189,7 +189,7 @@ def submitComment(request):
     if request.user.is_authenticated():
         comment_on_id = request.POST['comment_on']
         reply = request.POST['reply']
-        if not Posts.objects.filter(id=comment_on_id).exists():
+        if not Post.objects.filter(id=comment_on_id).exists():
             return JsonResponse({'success' : False, 'Error' : "No such post exists"})
             
         p = Post.objects.get(id = comment_on_id)
@@ -205,23 +205,26 @@ def deletePost(request):
     
     if request.user.is_authenticated():
         postId = request.POST['postId']
-        if not Posts.objects.filter(id=postId).exists():
+        if not Post.objects.filter(id=postId).exists():
             return JsonResponse({'success' : False, 'Error' : "No such post exists"})
         
-        qs = Posts.objects.filter(id=postId)
+        qs = Post.objects.filter(id=postId)
         if qs[0].deleted:
             return JsonResponse({'success' : False, 'Error' : "Alreday deleted"})
             
         qs.update(expires_on=timezone.now(), deleted=True)
         
-        if TextPost.objects.filter(id=postId).exists():
-            qs.update(title="[deleted]", text="[deleted]")
+        qs2 = TextPost.objects.filter(id=postId)
+        if qs2.exists():
+            qs2.update(title="[deleted]", text="[deleted]")
 
-        if LinkPost.objects.filter(id=postId).exists():
-            qs.update(title="[deleted]", link="")
+        qs2 = LinkPost.objects.filter(id=postId)
+        if qs2.exists():
+            qs2.update(title="[deleted]", link="")
 
-        if Event.objects.filter(id=postId).exists():
-            qs.update(title=qs[0].title + " [cancelled]")
+        qs2 = Event.objects.filter(id=postId)
+        if qs2.exists():
+            qs2.update(title=qs[0].title + " [cancelled]")
 
         return JsonResponse({'success' : True})
     return JsonResponse({'success' : False, 'Error' : "Login to delete"})
