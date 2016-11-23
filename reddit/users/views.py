@@ -59,9 +59,9 @@ def top(request, sort_type):
             posts = top_feed(sort_type)
             popularsubreddits = popularSubreddits()
             events = getEvents()
-
+        searchSubreddits = [ str(s.title) for s in Subreddit.objects.all()]
         return render(request, "index.html", {"posts" : posts, "popularsubreddits" : popularsubreddits,
-                                          "events" : events})
+                                          "events" : events, "searchSubreddits" : searchSubreddits})
     else:
        return redirect('index')
 
